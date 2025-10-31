@@ -5,16 +5,28 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CQC.Canteen.UI"
         mc:Ignorable="d"
-        Title="CQC Canteen System" Height="720" Width="1280"
-        WindowStartupLocation="CenterScreen">
+        Title="CQC Canteen System - مركز تأهيل الحاسبات" 
+        Height="720" 
+        Width="1280"
+        WindowStartupLocation="CenterScreen"
+        MinHeight="600"
+        MinWidth="1000"
+        Icon="/Assets/Logo (1) (1).png"
+        FontFamily="Tahoma">
 
-    <!-- 
-    ده المسرح اللي هيتعرض عليه كل الـ UserControls 
-    (LoginView, SalesView, etc.)
-    -->
+    <Window.Resources>
+        <!-- الألوان المصرية -->
+        <Color x:Key="EgyptianRedColor">#B22222</Color>
+        <Color x:Key="EgyptianGoldColor">#D4AF37</Color>
+        <Color x:Key="EgyptianBlueColor">#003366</Color>
+
+        <SolidColorBrush x:Key="EgyptianRedBrush" Color="{StaticResource EgyptianRedColor}"/>
+        <SolidColorBrush x:Key="EgyptianGoldBrush" Color="{StaticResource EgyptianGoldColor}"/>
+        <SolidColorBrush x:Key="EgyptianBlueBrush" Color="{StaticResource EgyptianBlueColor}"/>
+    </Window.Resources>
+
     <Grid>
         <ContentControl Content="{Binding CurrentViewModel}" />
     </Grid>
 
 </Window>
-

@@ -29,12 +29,13 @@ namespace CQC.Canteen.BusinessLogic.Services.Products
         {
             var products = await _context.Products
                 .AsNoTracking()
-                .Include(p => p.Category) // عشان نجيب اسم الفئة
+                .Include(p => p.Category)
                 .Select(p => new ProductDto
                 {
                     Id = p.Id,
                     Name = p.Name,
                     SalePrice = p.SalePrice,
+                    PurchasePrice = p.PurchasePrice, // تأكد من إضافة هذا السطر
                     StockQuantity = p.StockQuantity,
                     CategoryName = p.Category.Name,
                     IsActive = p.IsActive
