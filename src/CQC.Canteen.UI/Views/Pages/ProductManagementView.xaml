@@ -89,6 +89,7 @@
                         Style="{StaticResource PrimaryButtonStyle}"/>
 
                 <Button Content="✏️ تعديل الصنف المحدد" 
+                        Command="{Binding ShowEditProductDialogCommand}"
                         Style="{StaticResource SecondaryButtonStyle}"
                         Margin="10,0,0,0"/>
 
@@ -100,6 +101,7 @@
 
         <!-- الجدول (DataGrid) -->
         <DataGrid ItemsSource="{Binding Products}"
+                  SelectedItem="{Binding SelectedProduct}"
                   Margin="10,80,10,10"
                   AutoGenerateColumns="False"
                   CanUserAddRows="False"
@@ -132,6 +134,15 @@
                     <Setter Property="BorderThickness" Value="0,0,1,0"/>
                     <Setter Property="BorderBrush" Value="#EEE"/>
                     <Setter Property="HorizontalAlignment" Value="Center"/>
+                </Style>
+
+                <!-- ستايل الصف المحدد -->
+                <Style TargetType="DataGridRow">
+                    <Style.Triggers>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter Property="Background" Value="{StaticResource EgyptianSandBrush}"/>
+                        </Trigger>
+                    </Style.Triggers>
                 </Style>
             </DataGrid.Resources>
 
