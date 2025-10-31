@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="src/CQC.Canteen.BusinessLogic/CQC.Canteen.BusinessLogic.csproj" />
+  <Project Path="src/CQC.Canteen.Domain/CQC.Canteen.Domain.csproj" />
+  <Project Path="src/CQC.Canteen.UI/CQC.Canteen.UI.csproj" />
+</Solution>

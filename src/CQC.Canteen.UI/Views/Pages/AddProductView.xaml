@@ -1,0 +1,163 @@
+﻿<Window x:Class="CQC.Canteen.UI.Views.Pages.AddProductView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:converters="clr-namespace:CQC.Canteen.UI.Converters"
+        xmlns:vmpages="clr-namespace:CQC.Canteen.UI.ViewModels.Pages"
+        mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance Type=vmpages:AddProductViewModel}"
+        Title="إضافة صنف جديد" 
+        Width="450"
+        SizeToContent="Height"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        FlowDirection="RightToLeft"
+        FontFamily="Tahoma"
+        Background="#F4F4F4">
+
+    <Window.Resources>
+        <!-- الألوان المصرية -->
+        <Color x:Key="EgyptianRedColor">#B22222</Color>
+        <Color x:Key="EgyptianGoldColor">#D4AF37</Color>
+        <Color x:Key="EgyptianBlueColor">#003366</Color>
+        <Color x:Key="EgyptianSandColor">#EDE6D6</Color>
+
+        <SolidColorBrush x:Key="EgyptianRedBrush" Color="{StaticResource EgyptianRedColor}"/>
+        <SolidColorBrush x:Key="EgyptianGoldBrush" Color="{StaticResource EgyptianGoldColor}"/>
+        <SolidColorBrush x:Key="EgyptianBlueBrush" Color="{StaticResource EgyptianBlueColor}"/>
+        <SolidColorBrush x:Key="EgyptianSandBrush" Color="{StaticResource EgyptianSandColor}"/>
+
+        <!-- Converters -->
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
+
+        <!-- ستايلات -->
+        <Style TargetType="TextBlock" x:Key="LabelStyle">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{StaticResource EgyptianBlueBrush}"/>
+            <Setter Property="Margin" Value="0,10,0,5"/>
+        </Style>
+
+        <Style TargetType="TextBox">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Padding" Value="8"/>
+            <Setter Property="BorderBrush" Value="#AAA"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Background" Value="White"/>
+        </Style>
+
+        <Style TargetType="ComboBox">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Padding" Value="8,5"/>
+            <Setter Property="BorderBrush" Value="#AAA"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Background" Value="White"/>
+        </Style>
+
+        <Style TargetType="Button">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Padding" Value="20,8"/>
+            <Setter Property="Margin" Value="0,0,10,0"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="5"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+    </Window.Resources>
+
+    <Grid>
+        <!-- طبقة التحميل -->
+        <Border Background="#99FFFFFF"
+                Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}"
+                Panel.ZIndex="10">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                <TextBlock Text="...جاري التحميل"
+                           FontSize="16"
+                           FontWeight="Bold"
+                           HorizontalAlignment="Center"
+                           Foreground="{StaticResource EgyptianRedBrush}"/>
+                <ProgressBar IsIndeterminate="True" 
+                             Width="200" 
+                             Height="10" 
+                             Margin="0,10,0,0"
+                             Background="{StaticResource EgyptianSandBrush}"
+                             Foreground="{StaticResource EgyptianGoldBrush}"/>
+            </StackPanel>
+        </Border>
+
+        <!-- الفورم -->
+        <StackPanel Margin="20">
+            <TextBlock Text="اسم الصنف:" Style="{StaticResource LabelStyle}"/>
+            <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"/>
+
+            <TextBlock Text="الفئة:" Style="{StaticResource LabelStyle}"/>
+            <ComboBox ItemsSource="{Binding Categories}"
+                      DisplayMemberPath="Name"
+                      SelectedValuePath="Id"
+                      SelectedValue="{Binding SelectedCategoryId}"
+                      Height="35"/>
+
+            <Grid Margin="0,10,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="سعر البيع (ج.م):" Style="{StaticResource LabelStyle}"/>
+                    <TextBox Text="{Binding SalePrice, UpdateSourceTrigger=PropertyChanged}"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2">
+                    <TextBlock Text="سعر الشراء (ج.م):" Style="{StaticResource LabelStyle}"/>
+                    <TextBox Text="{Binding PurchasePrice, UpdateSourceTrigger=PropertyChanged}"/>
+                </StackPanel>
+            </Grid>
+
+            <TextBlock Text="الكمية الأولية:" Style="{StaticResource LabelStyle}"/>
+            <TextBox Text="{Binding StockQuantity, UpdateSourceTrigger=PropertyChanged}"/>
+
+            <!-- رسالة الخطأ -->
+            <Border Background="#FFEBEE" 
+                    BorderBrush="#F44336" 
+                    BorderThickness="1" 
+                    CornerRadius="5"
+                    Margin="0,10,0,0"
+                    Padding="10"
+                    Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}">
+                <TextBlock Text="{Binding ErrorMessage}"
+                           Foreground="#D32F2F"
+                           FontSize="13"
+                           TextWrapping="Wrap"
+                           TextAlignment="Right"/>
+            </Border>
+
+            <!-- الأزرار -->
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,20,0,0">
+                <Button Content="حفظ"
+                        Command="{Binding SaveCommand}"
+                        Background="{StaticResource EgyptianRedBrush}"/>
+
+                <Button Content="إلغاء"
+                        Command="{Binding CancelCommand}"
+                        Background="{StaticResource EgyptianBlueBrush}"/>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</Window>

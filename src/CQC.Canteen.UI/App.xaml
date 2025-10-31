@@ -1,0 +1,40 @@
+﻿<Application x:Class="CQC.Canteen.UI.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:CQC.Canteen.UI"
+             xmlns:converters="clr-namespace:CQC.Canteen.UI.Converters"
+             xmlns:views="clr-namespace:CQC.Canteen.UI.Views"
+             xmlns:viewmodels="clr-namespace:CQC.Canteen.UI.ViewModels"
+             xmlns:pages="clr-namespace:CQC.Canteen.UI.Views.Pages"
+             xmlns:vmpages="clr-namespace:CQC.Canteen.UI.ViewModels.Pages">
+
+    <Application.Resources>
+        <ResourceDictionary>
+
+            <!-- تسجيل الـ Converters -->
+            <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+            <converters:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
+            <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
+
+            <!-- ربط الـ ViewModels بالـ Views -->
+            <DataTemplate DataType="{x:Type viewmodels:LoginViewModel}">
+                <views:LoginView/>
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type viewmodels:AdminDashboardViewModel}">
+                <views:AdminDashboardView/>
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type viewmodels:CasherSalesViewModel}">
+                <views:CasherSalesView/>
+            </DataTemplate>
+
+            <!-- الربط الجديد -->
+            <DataTemplate DataType="{x:Type vmpages:ProductManagementViewModel}">
+                <pages:ProductManagementView/>
+            </DataTemplate>
+
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>
+

@@ -1,0 +1,179 @@
+﻿<UserControl x:Class="CQC.Canteen.UI.Views.Pages.ProductManagementView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:vmpages="clr-namespace:CQC.Canteen.UI.ViewModels.Pages"
+             xmlns:converters="clr-namespace:CQC.Canteen.UI.Converters"
+             mc:Ignorable="d" 
+             d:DataContext="{d:DesignInstance Type=vmpages:ProductManagementViewModel}"
+             d:DesignHeight="600" d:DesignWidth="750"
+             Background="#F4F4F4"
+             FontFamily="Tahoma"
+             FlowDirection="RightToLeft">
+
+    <UserControl.Resources>
+        <!-- الألوان المصرية -->
+        <Color x:Key="EgyptianRedColor">#B22222</Color>
+        <Color x:Key="EgyptianGoldColor">#D4AF37</Color>
+        <Color x:Key="EgyptianBlueColor">#003366</Color>
+
+        <SolidColorBrush x:Key="EgyptianRedBrush" Color="{StaticResource EgyptianRedColor}"/>
+        <SolidColorBrush x:Key="EgyptianGoldBrush" Color="{StaticResource EgyptianGoldColor}"/>
+        <SolidColorBrush x:Key="EgyptianBlueBrush" Color="{StaticResource EgyptianBlueColor}"/>
+
+        <!-- Converters -->
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+
+        <!-- ستايل الأزرار -->
+        <Style TargetType="Button" x:Key="PrimaryButtonStyle">
+            <Setter Property="Background" Value="{StaticResource EgyptianRedBrush}"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Padding" Value="15,8"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="5"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="Button" x:Key="SecondaryButtonStyle">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{StaticResource EgyptianBlueBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource EgyptianBlueBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Padding" Value="15,8"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="5"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+    </UserControl.Resources>
+
+    <Grid>
+        <!-- شريط الأدوات فوق -->
+        <Border Background="White" 
+                CornerRadius="5"
+                BorderBrush="#DDD" 
+                BorderThickness="1"
+                Padding="15"
+                VerticalAlignment="Top"
+                Margin="10">
+            <StackPanel Orientation="Horizontal">
+                <Button Content="➕ إضافة صنف جديد" 
+                        Command="{Binding ShowAddProductDialogCommand}"
+                        Style="{StaticResource PrimaryButtonStyle}"/>
+
+                <Button Content="✏️ تعديل الصنف المحدد" 
+                        Style="{StaticResource SecondaryButtonStyle}"
+                        Margin="10,0,0,0"/>
+
+                <Button Content="📦 إضافة مخزون" 
+                        Style="{StaticResource SecondaryButtonStyle}"
+                        Margin="10,0,0,0"/>
+            </StackPanel>
+        </Border>
+
+        <!-- الجدول (DataGrid) -->
+        <DataGrid ItemsSource="{Binding Products}"
+                  Margin="10,80,10,10"
+                  AutoGenerateColumns="False"
+                  CanUserAddRows="False"
+                  IsReadOnly="True"
+                  SelectionMode="Single"
+                  FontSize="14"
+                  RowHeight="35"
+                  GridLinesVisibility="Horizontal"
+                  HorizontalScrollBarVisibility="Auto"
+                  VerticalScrollBarVisibility="Auto"
+                  Background="White"
+                  BorderBrush="#DDD"
+                  BorderThickness="1">
+
+            <DataGrid.Resources>
+                <!-- ستايل الهيدر بتاع الجدول -->
+                <Style TargetType="DataGridColumnHeader">
+                    <Setter Property="Background" Value="{StaticResource EgyptianBlueBrush}"/>
+                    <Setter Property="Foreground" Value="White"/>
+                    <Setter Property="FontWeight" Value="Bold"/>
+                    <Setter Property="Padding" Value="10,8"/>
+                    <Setter Property="BorderThickness" Value="0,0,1,0"/>
+                    <Setter Property="BorderBrush" Value="#DDD"/>
+                    <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                </Style>
+
+                <!-- ستايل الخلية (Cell) -->
+                <Style TargetType="DataGridCell">
+                    <Setter Property="Padding" Value="10,5"/>
+                    <Setter Property="BorderThickness" Value="0,0,1,0"/>
+                    <Setter Property="BorderBrush" Value="#EEE"/>
+                    <Setter Property="HorizontalAlignment" Value="Center"/>
+                </Style>
+            </DataGrid.Resources>
+
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="الاسم" Binding="{Binding Name}" Width="*"/>
+                <DataGridTextColumn Header="الفئة" Binding="{Binding CategoryName}" Width="150"/>
+                <DataGridTextColumn Header="سعر البيع" 
+                                    Binding="{Binding SalePrice, StringFormat=\{0:C\}}" 
+                                    Width="120"/>
+                <DataGridTextColumn Header="سعر الشراء" 
+                                    Binding="{Binding PurchasePrice, StringFormat=\{0:C\}}" 
+                                    Width="120"/>
+                <DataGridTextColumn Header="الكمية" Binding="{Binding StockQuantity}" Width="100"/>
+                <DataGridTemplateColumn Header="نشط؟" Width="80">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <CheckBox IsChecked="{Binding IsActive}" 
+                                      IsEnabled="False" 
+                                      HorizontalAlignment="Center" 
+                                      VerticalAlignment="Center"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- مؤشر التحميل -->
+        <Border Background="#99FFFFFF"
+                Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                <TextBlock Text="...جاري تحميل الأصناف"
+                           FontSize="18"
+                           FontWeight="Bold"
+                           HorizontalAlignment="Center"
+                           Foreground="{StaticResource EgyptianRedBrush}"/>
+                <ProgressBar IsIndeterminate="True" 
+                             Width="250" 
+                             Height="12" 
+                             Margin="0,15,0,0"
+                             Background="#EDE6D6"
+                             Foreground="{StaticResource EgyptianGoldBrush}"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>
