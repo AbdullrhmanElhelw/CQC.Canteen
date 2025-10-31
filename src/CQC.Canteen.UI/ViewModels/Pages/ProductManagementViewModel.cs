@@ -1,10 +1,10 @@
 ﻿using CQC.Canteen.BusinessLogic.DTOs.Products;
 using CQC.Canteen.BusinessLogic.Services.Products;
 using CQC.Canteen.UI.Commands;
-using CQC.Canteen.UI.Views.Pages; // <-- (1) إضافة مهمة
-using Microsoft.Extensions.DependencyInjection; // <-- (2) إضافة مهمة
+using CQC.Canteen.UI.Views.Pages;
+using Microsoft.Extensions.DependencyInjection;
 using System.Collections.ObjectModel;
-using System.Windows; // <-- (4) إضافة مهمة
+using System.Windows;
 using System.Windows.Input;
 
 namespace CQC.Canteen.UI.ViewModels.Pages
@@ -12,7 +12,7 @@ namespace CQC.Canteen.UI.ViewModels.Pages
     public class ProductManagementViewModel : BaseViewModel
     {
         private readonly IProductService _productService;
-        private readonly IServiceProvider _serviceProvider; // <-- (5) إضافة
+        private readonly IServiceProvider _serviceProvider;
 
         public ObservableCollection<ProductDto> Products { get; } = new ObservableCollection<ProductDto>();
 
@@ -23,16 +23,25 @@ namespace CQC.Canteen.UI.ViewModels.Pages
             set => SetProperty(ref _isLoading, value);
         }
 
+        private ProductDto _selectedProduct;
+        public ProductDto SelectedProduct
+        {
+            get => _selectedProduct;
+            set => SetProperty(ref _selectedProduct, value);
+        }
+
         public ICommand LoadProductsCommand { get; }
-        public ICommand ShowAddProductDialogCommand { get; } // <-- (6) إضافة
+        public ICommand ShowAddProductDialogCommand { get; }
+        public ICommand ShowEditProductDialogCommand { get; }
 
         public ProductManagementViewModel(IProductService productService, IServiceProvider serviceProvider)
         {
             _productService = productService;
-            _serviceProvider = serviceProvider; // <-- (7) إضافة
+            _serviceProvider = serviceProvider;
 
             LoadProductsCommand = new RelayCommand<object>(async (p) => await LoadProductsAsync());
-            ShowAddProductDialogCommand = new RelayCommand<object>((p) => ExecuteShowAddProductDialog()); // <-- (8) إضافة
+            ShowAddProductDialogCommand = new RelayCommand<object>((p) => ExecuteShowAddProductDialog());
+            ShowEditProductDialogCommand = new RelayCommand<object>((p) => ExecuteShowEditProductDialog(), (p) => SelectedProduct != null);
 
             LoadProductsAsync();
         }
@@ -53,34 +62,55 @@ namespace CQC.Canteen.UI.ViewModels.Pages
             }
             else
             {
-                // (ممكن نعرض رسالة خطأ)
+                MessageBox.Show("فشل في تحميل الأصناف: " + string.Join("\n", result.Errors),
+                              "خطأ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
 
             IsLoading = false;
         }
 
-        // (9) الميثود الجديدة اللي بتفتح الـ Popup
         private void ExecuteShowAddProductDialog()
         {
-            // 1. اطلب VM جديد من الـ DI (عشان يكون نضيف)
             var viewModel = _serviceProvider.GetRequiredService<AddProductViewModel>();
-
-            // 2. اعمل شاشة جديدة واديهالها
             var view = new AddProductView(viewModel);
-
-            // 3. خليها تفتح فوق الشاشة الرئيسية
             view.Owner = Application.Current.MainWindow;
 
-            // 4. اعرضها وانتظر النتيجة
             var dialogResult = view.ShowDialog();
 
-            // 5. لو النتيجة "True" (يعني داس حفظ)
             if (dialogResult == true && viewModel.NewProduct != null)
             {
-                // ضيف الصنف الجديد للجدول اللي في الشاشة
                 Products.Add(viewModel.NewProduct);
+            }
+        }
+
+        private async void ExecuteShowEditProductDialog()
+        {
+            if (SelectedProduct == null)
+            {
+                MessageBox.Show("يرجى اختيار صنف للتعديل", "تنبيه",
+                              MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var viewModel = _serviceProvider.GetRequiredService<EditProductViewModel>();
+            var view = new EditProductView(viewModel);
+            view.Owner = Application.Current.MainWindow;
+
+            // تحميل بيانات المنتج قبل عرض النافذة
+            await viewModel.LoadProductDataAsync(SelectedProduct.Id);
+
+            var dialogResult = view.ShowDialog();
+
+            if (dialogResult == true && viewModel.UpdatedProduct != null)
+            {
+                // تحديث العنصر في القائمة
+                var existingProduct = Products.FirstOrDefault(p => p.Id == viewModel.UpdatedProduct.Id);
+                if (existingProduct != null)
+                {
+                    var index = Products.IndexOf(existingProduct);
+                    Products[index] = viewModel.UpdatedProduct;
+                }
             }
         }
     }
 }
-
