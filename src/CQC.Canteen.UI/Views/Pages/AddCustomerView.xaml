@@ -1,0 +1,156 @@
+﻿<Window x:Class="CQC.Canteen.UI.Views.Pages.AddCustomerView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        xmlns:enums="clr-namespace:CQC.Canteen.Domain.Enums;assembly=CQC.Canteen.Domain"
+        xmlns:converters="clr-namespace:CQC.Canteen.UI.Converters"
+        mc:Ignorable="d"
+        Title="إضافة عميل جديد"
+        Height="440" Width="520"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        Background="#F4F4F4"
+        FlowDirection="RightToLeft"
+        FontFamily="Segoe UI">
+
+    <Window.Resources>
+        <converters:BoolToTextConverter x:Key="BoolToTextConverter"
+                                        TrueText="عسكري"
+                                        FalseText="مدني"/>
+
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+
+        <ObjectDataProvider x:Key="RankValues"
+                            MethodName="GetValues"
+                            ObjectType="{x:Type sys:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="enums:MilitaryRank"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+
+        <Style TargetType="Button" x:Key="PrimaryButtonStyle">
+            <Setter Property="Background" Value="#B22222"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="14,6"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderBrush" Value="#B22222"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#9A1B1B"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style TargetType="Button" x:Key="SecondaryButtonStyle">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="#CCC"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="14,6"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Foreground" Value="#444"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#F3F3F3"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+
+    <!-- 🧩 المحتوى -->
+    <Grid>
+        <Border Background="White" CornerRadius="8" Margin="20" Padding="30">
+            <!-- ✅ ScrollViewer مضاف هنا -->
+            <ScrollViewer VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Disabled">
+                <StackPanel>
+
+                    <!-- العنوان -->
+                    <TextBlock Text="➕ إضافة عميل جديد"
+                               FontSize="18"
+                               FontWeight="Bold"
+                               Foreground="#003366"
+                               HorizontalAlignment="Center"
+                               Margin="0,0,0,24"/>
+
+                    <!-- الاسم -->
+                    <TextBlock Text="اسم العميل *"
+                               FontSize="13"
+                               FontWeight="SemiBold"
+                               Foreground="#333"
+                               Margin="0,0,0,8"/>
+                    <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
+                             FontSize="13"
+                             Padding="8"
+                             Height="38"
+                             BorderBrush="#DDD"
+                             BorderThickness="1"
+                             Margin="0,0,0,16"/>
+
+                    <!-- النوع -->
+                    <TextBlock Text="نوع العميل *"
+                               FontSize="13"
+                               FontWeight="SemiBold"
+                               Foreground="#333"
+                               Margin="0,0,0,8"/>
+                    <ComboBox SelectedItem="{Binding IsMilitary, Mode=TwoWay}"
+                              FontSize="13"
+                              Height="38"
+                              Margin="0,0,0,16">
+                        <ComboBox.ItemsSource>
+                            <x:Array Type="{x:Type sys:Boolean}">
+                                <sys:Boolean>False</sys:Boolean>
+                                <sys:Boolean>True</sys:Boolean>
+                            </x:Array>
+                        </ComboBox.ItemsSource>
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Converter={StaticResource BoolToTextConverter}}"/>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+
+                    <!-- الرتبة (تظهر فقط لو عسكري) -->
+                    <StackPanel Margin="0,0,0,16"
+                                Visibility="{Binding IsMilitary, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <TextBlock Text="الرتبة العسكرية *"
+                                   FontSize="13"
+                                   FontWeight="SemiBold"
+                                   Foreground="#333"
+                                   Margin="0,0,0,8"/>
+                        <ComboBox ItemsSource="{Binding Source={StaticResource RankValues}}"
+                                  SelectedItem="{Binding Rank, Mode=TwoWay}"
+                                  FontSize="13"
+                                  Height="38"
+                                  BorderBrush="#DDD"
+                                  BorderThickness="1"/>
+                    </StackPanel>
+
+                    <!-- الأزرار -->
+                    <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Right"
+                                Margin="0,20,0,0">
+                        <Button Content="💾 حفظ"
+                                Style="{StaticResource PrimaryButtonStyle}"
+                                Width="120"
+                                Margin="0,0,10,0"
+                                Command="{Binding SaveCommand}"
+                                CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"/>
+
+                        <Button Content="✖️ إلغاء"
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                Width="120"
+                                Command="{Binding CancelCommand}"
+                                CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"/>
+                    </StackPanel>
+
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+    </Grid>
+</Window>

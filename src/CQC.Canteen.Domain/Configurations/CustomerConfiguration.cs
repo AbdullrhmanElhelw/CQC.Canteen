@@ -16,5 +16,9 @@ public class CustomerConfiguration : IEntityTypeConfiguration<Customer>
         builder.Property(c => c.CurrentBalance)
             .HasColumnType("decimal(18,2)")
             .HasDefaultValue(0.0m); // يبدأ برصيد صفر
+
+        builder.Property(c => c.Rank)
+            .HasConversion<string>()
+            .IsRequired(false);
     }
 }

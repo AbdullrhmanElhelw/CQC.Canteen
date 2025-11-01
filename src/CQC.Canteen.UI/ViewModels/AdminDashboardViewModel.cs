@@ -3,47 +3,55 @@ using CQC.Canteen.UI.ViewModels.Pages;
 using Microsoft.Extensions.DependencyInjection;
 using System.Windows.Input;
 
-namespace CQC.Canteen.UI.ViewModels;
-
-public class AdminDashboardViewModel : BaseViewModel
+namespace CQC.Canteen.UI.ViewModels
 {
-    private readonly IServiceProvider _serviceProvider;
-
-    private BaseViewModel _currentAdminPageViewModel;
-    public BaseViewModel CurrentAdminPageViewModel
+    public class AdminDashboardViewModel : BaseViewModel
     {
-        get => _currentAdminPageViewModel;
-        set => SetProperty(ref _currentAdminPageViewModel, value);
-    }
+        private readonly IServiceProvider _serviceProvider;
 
-    public ICommand ShowProductsCommand { get; }
-    public ICommand ShowCategoriesCommand { get; }
+        private BaseViewModel _currentAdminPageViewModel;
+        public BaseViewModel CurrentAdminPageViewModel
+        {
+            get => _currentAdminPageViewModel;
+            set => SetProperty(ref _currentAdminPageViewModel, value);
+        }
 
-    public AdminDashboardViewModel(IServiceProvider serviceProvider)
-    {
-        _serviceProvider = serviceProvider;
+        public ICommand ShowProductsCommand { get; }
+        public ICommand ShowCategoriesCommand { get; }
+        public ICommand ShowCustomersCommand { get; } // 👈 الجديد
 
-        ShowProductsCommand = new RelayCommand<object>(
-            (p) => ExecuteShowProducts(),
-            (p) => true
-        );
+        public AdminDashboardViewModel(IServiceProvider serviceProvider)
+        {
+            _serviceProvider = serviceProvider;
 
-        ShowCategoriesCommand = new RelayCommand<object>(
-            (p) => ExecuteShowCategories(),
-            (p) => true
-        );
+            ShowProductsCommand = new RelayCommand<object>(
+                (p) => ExecuteShowProducts()
+            );
 
-        // الصفحة الافتراضية
-        ExecuteShowProducts();
-    }
+            ShowCategoriesCommand = new RelayCommand<object>(
+                (p) => ExecuteShowCategories()
+            );
 
-    private void ExecuteShowProducts()
-    {
-        CurrentAdminPageViewModel = _serviceProvider.GetRequiredService<ProductManagementViewModel>();
-    }
+            ShowCustomersCommand = new RelayCommand<object>(
+                (p) => ExecuteShowCustomers()
+            );
 
-    private void ExecuteShowCategories()
-    {
-        CurrentAdminPageViewModel = _serviceProvider.GetRequiredService<CategoryManagementViewModel>();
+            ExecuteShowProducts();
+        }
+
+        private void ExecuteShowProducts()
+        {
+            CurrentAdminPageViewModel = _serviceProvider.GetRequiredService<ProductManagementViewModel>();
+        }
+
+        private void ExecuteShowCategories()
+        {
+            CurrentAdminPageViewModel = _serviceProvider.GetRequiredService<CategoryManagementViewModel>();
+        }
+
+        private void ExecuteShowCustomers()
+        {
+            CurrentAdminPageViewModel = _serviceProvider.GetRequiredService<CustomerManagementViewModel>();
+        }
     }
 }

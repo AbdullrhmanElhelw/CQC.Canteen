@@ -19,6 +19,9 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.HasIndex(u => u.UserName).IsUnique();
 
         builder.Property(u => u.Password).IsRequired(); // هتكون Hashed
-        builder.Property(u => u.Role).IsRequired();
+        builder.Property(u => u.Role)
+            .IsRequired()
+            .HasConversion<string>() // نخزنها كنص
+            .HasMaxLength(20);
     }
 }

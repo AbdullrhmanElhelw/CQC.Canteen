@@ -7,16 +7,17 @@
              xmlns:viewmodels="clr-namespace:CQC.Canteen.UI.ViewModels"
              xmlns:pages="clr-namespace:CQC.Canteen.UI.Views.Pages"
              xmlns:vmpages="clr-namespace:CQC.Canteen.UI.ViewModels.Pages">
+
     <Application.Resources>
         <ResourceDictionary>
-            <!-- تسجيل الـ Converters -->
+            <!-- ✅ Converters -->
             <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
             <converters:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
             <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
             <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
             <converters:CountToVisibilityConverter x:Key="CountToVisibilityConverter"/>
 
-            <!-- ربط الـ ViewModels بالـ Views -->
+            <!-- ✅ ربط الـ ViewModels العامة -->
             <DataTemplate DataType="{x:Type viewmodels:LoginViewModel}">
                 <views:LoginView/>
             </DataTemplate>
@@ -29,7 +30,7 @@
                 <views:CasherSalesView/>
             </DataTemplate>
 
-            <!-- ربط صفحات الأدمن (Admin Pages) -->
+            <!-- ✅ صفحات الأدمن -->
             <DataTemplate DataType="{x:Type vmpages:ProductManagementViewModel}">
                 <pages:ProductManagementView/>
             </DataTemplate>
@@ -38,6 +39,10 @@
                 <pages:CategoryManagementView/>
             </DataTemplate>
 
+            <!-- 🎯 الإضافة الجديدة -->
+            <DataTemplate DataType="{x:Type vmpages:CustomerManagementViewModel}">
+                <pages:CustomerManagementView/>
+            </DataTemplate>
         </ResourceDictionary>
     </Application.Resources>
 </Application>
