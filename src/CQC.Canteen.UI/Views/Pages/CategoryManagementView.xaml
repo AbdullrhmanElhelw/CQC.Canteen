@@ -1,0 +1,353 @@
+﻿<UserControl x:Class="CQC.Canteen.UI.Views.Pages.CategoryManagementView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:vmpages="clr-namespace:CQC.Canteen.UI.ViewModels.Pages"
+             xmlns:converters="clr-namespace:CQC.Canteen.UI.Converters"
+             mc:Ignorable="d" 
+             d:DataContext="{d:DesignInstance Type=vmpages:CategoryManagementViewModel}"
+             d:DesignHeight="600" d:DesignWidth="800"
+             Background="#F4F4F4"
+             FontFamily="Segoe UI, Tahoma"
+             FlowDirection="RightToLeft">
+
+    <UserControl.Resources>
+        <!-- الألوان المصرية -->
+        <Color x:Key="EgyptianRedColor">#B22222</Color>
+        <Color x:Key="EgyptianGoldColor">#D4AF37</Color>
+        <Color x:Key="EgyptianBlueColor">#003366</Color>
+        <Color x:Key="EgyptianSandColor">#EDE6D6</Color>
+        <Color x:Key="LightRedColor">#FFF5F5</Color>
+        <Color x:Key="LightBlueColor">#F0F8FF</Color>
+        <Color x:Key="SuccessGreen">#27AE60</Color>
+
+        <SolidColorBrush x:Key="EgyptianRedBrush" Color="{StaticResource EgyptianRedColor}"/>
+        <SolidColorBrush x:Key="EgyptianGoldBrush" Color="{StaticResource EgyptianGoldColor}"/>
+        <SolidColorBrush x:Key="EgyptianBlueBrush" Color="{StaticResource EgyptianBlueColor}"/>
+        <SolidColorBrush x:Key="EgyptianSandBrush" Color="{StaticResource EgyptianSandColor}"/>
+        <SolidColorBrush x:Key="LightRedBrush" Color="{StaticResource LightRedColor}"/>
+        <SolidColorBrush x:Key="LightBlueBrush" Color="{StaticResource LightBlueColor}"/>
+        <SolidColorBrush x:Key="SuccessGreenBrush" Color="{StaticResource SuccessGreen}"/>
+
+        <!-- Converters -->
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+        <converters:CountToVisibilityConverter x:Key="CountToVisibilityConverter"/>
+
+        <!-- تأثير الظل -->
+        <DropShadowEffect x:Key="ShadowEffect" 
+                          BlurRadius="10" 
+                          ShadowDepth="2" 
+                          Opacity="0.1" 
+                          Color="#000000"/>
+
+        <!-- ستايل الأزرار -->
+        <Style TargetType="Button" x:Key="PrimaryButtonStyle">
+            <Setter Property="Background" Value="{StaticResource EgyptianRedBrush}"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="12,6"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="4"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#9A1B1B"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Background" Value="#7A1515"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style TargetType="Button" x:Key="SecondaryButtonStyle">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{StaticResource EgyptianBlueBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource EgyptianBlueBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Padding" Value="12,6"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="{StaticResource LightBlueBrush}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- ستايل DataGrid -->
+        <Style x:Key="ModernDataGridStyle" TargetType="DataGrid">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#E1E1E1"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="RowDetailsVisibilityMode" Value="VisibleWhenSelected"/>
+            <Setter Property="ScrollViewer.CanContentScroll" Value="True"/>
+            <Setter Property="AutoGenerateColumns" Value="False"/>
+            <Setter Property="CanUserAddRows" Value="False"/>
+            <Setter Property="CanUserDeleteRows" Value="False"/>
+            <Setter Property="CanUserReorderColumns" Value="False"/>
+            <Setter Property="CanUserResizeColumns" Value="True"/>
+            <Setter Property="CanUserResizeRows" Value="False"/>
+            <Setter Property="CanUserSortColumns" Value="True"/>
+            <Setter Property="GridLinesVisibility" Value="Horizontal"/>
+            <Setter Property="HorizontalGridLinesBrush" Value="#F0F0F0"/>
+            <Setter Property="VerticalGridLinesBrush" Value="Transparent"/>
+            <Setter Property="SelectionMode" Value="Single"/>
+            <Setter Property="SelectionUnit" Value="FullRow"/>
+            <Setter Property="RowHeight" Value="48"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="HorizontalScrollBarVisibility" Value="Auto"/>
+            <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
+        </Style>
+
+        <!-- ستايل رؤوس الأعمدة -->
+        <Style x:Key="ColumnHeaderStyle" TargetType="DataGridColumnHeader">
+            <Setter Property="Background" Value="{StaticResource EgyptianBlueBrush}"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Padding" Value="12,10"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="Height" Value="45"/>
+        </Style>
+
+        <!-- ستايل الخلايا -->
+        <Style x:Key="DataGridCellStyle" TargetType="DataGridCell">
+            <Setter Property="Padding" Value="12,8"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Foreground" Value="#333333"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="{StaticResource LightBlueBrush}"/>
+                    <Setter Property="Foreground" Value="{StaticResource EgyptianBlueBrush}"/>
+                    <Setter Property="FontWeight" Value="SemiBold"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- ستايل الصفوف -->
+        <Style x:Key="DataGridRowStyle" TargetType="DataGridRow">
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="{StaticResource LightBlueBrush}"/>
+                    <Setter Property="Cursor" Value="Hand"/>
+                </Trigger>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="{StaticResource LightBlueBrush}"/>
+                    <Setter Property="BorderBrush" Value="{StaticResource EgyptianBlueBrush}"/>
+                    <Setter Property="BorderThickness" Value="2,0"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- ستايل النصوص -->
+        <Style x:Key="TextCellStyle" TargetType="TextBlock">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+            <Setter Property="FontSize" Value="13"/>
+        </Style>
+
+    </UserControl.Resources>
+
+    <Grid>
+        <!-- شريط الأدوات العلوي -->
+        <Border Background="White" 
+                CornerRadius="6"
+                BorderBrush="#E1E1E1" 
+                BorderThickness="1"
+                Padding="16"
+                VerticalAlignment="Top"
+                Margin="12"
+                Effect="{StaticResource ShadowEffect}">
+            <StackPanel Orientation="Horizontal">
+                <Button Content="➕ إضافة فئة جديدة" 
+                        Command="{Binding ShowAddCategoryDialogCommand}"
+                        Style="{StaticResource PrimaryButtonStyle}"/>
+
+                <Button Content="✏️ تعديل الفئة المحددة" 
+                        Command="{Binding ShowEditCategoryDialogCommand}"
+                        Style="{StaticResource SecondaryButtonStyle}"
+                        Margin="8,0,0,0"/>
+
+                <Button Content="🔄 إعادة تحميل" 
+                        Command="{Binding LoadCategoriesCommand}"
+                        Style="{StaticResource SecondaryButtonStyle}"
+                        Margin="8,0,0,0"/>
+
+                <!-- مؤشر عدد الفئات -->
+                <Border Background="{StaticResource EgyptianSandBrush}"
+                        CornerRadius="4"
+                        Padding="8,4"
+                        Margin="16,0,0,0"
+                        VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Categories.Count, StringFormat='عدد الفئات: {0}'}"
+                               Foreground="{StaticResource EgyptianBlueBrush}"
+                               FontSize="12"
+                               FontWeight="SemiBold"/>
+                </Border>
+            </StackPanel>
+        </Border>
+
+        <!-- منطقة المعلومات المحددة -->
+        <Border Background="White"
+                CornerRadius="6"
+                BorderBrush="#E1E1E1"
+                BorderThickness="1"
+                Padding="16"
+                VerticalAlignment="Top"
+                HorizontalAlignment="Left"
+                Margin="12,80,0,0"
+                Width="280"
+                Visibility="{Binding SelectedCategory, Converter={StaticResource NullToVisibilityConverter}}"
+                Effect="{StaticResource ShadowEffect}">
+            <StackPanel>
+                <TextBlock Text="📋 تفاصيل الفئة المحددة"
+                           FontSize="14"
+                           FontWeight="Bold"
+                           Foreground="{StaticResource EgyptianBlueBrush}"
+                           Margin="0,0,0,12"/>
+
+                <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                    <TextBlock Text="الرقم:" 
+                               FontWeight="SemiBold" 
+                               Foreground="#666"
+                               Width="80"/>
+                    <TextBlock Text="{Binding SelectedCategory.Id}"
+                               Foreground="{StaticResource EgyptianBlueBrush}"
+                               FontWeight="SemiBold"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                    <TextBlock Text="الاسم:" 
+                               FontWeight="SemiBold" 
+                               Foreground="#666"
+                               Width="80"/>
+                    <TextBlock Text="{Binding SelectedCategory.Name}"
+                               Foreground="#333"
+                               FontSize="14"
+                               FontWeight="SemiBold"
+                               TextWrapping="Wrap"/>
+                </StackPanel>
+
+                <Button Content="✏️ تعديل الفئة"
+                        Style="{StaticResource PrimaryButtonStyle}"
+                        Margin="0,16,0,0"
+                        Command="{Binding ShowEditCategoryDialogCommand}"/>
+            </StackPanel>
+        </Border>
+
+        <!-- الجدول الرئيسي -->
+        <DataGrid ItemsSource="{Binding Categories}"
+                  SelectedItem="{Binding SelectedCategory}"
+                  Style="{StaticResource ModernDataGridStyle}"
+                  ColumnHeaderStyle="{StaticResource ColumnHeaderStyle}"
+                  CellStyle="{StaticResource DataGridCellStyle}"
+                  RowStyle="{StaticResource DataGridRowStyle}"
+                  Margin="300,80,12,12">
+
+            <DataGrid.Columns>
+                <!-- عمود الرقم -->
+                <DataGridTextColumn Header="رقم الفئة" 
+                                    Binding="{Binding Id}" 
+                                    Width="1*">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock" BasedOn="{StaticResource TextCellStyle}">
+                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                            <Setter Property="FontWeight" Value="SemiBold"/>
+                            <Setter Property="Foreground" Value="{StaticResource EgyptianBlueBrush}"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+
+                <!-- عمود الاسم -->
+                <DataGridTextColumn Header="اسم الفئة" 
+                                    Binding="{Binding Name}" 
+                                    Width="3*">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock" BasedOn="{StaticResource TextCellStyle}">
+                            <Setter Property="FontSize" Value="14"/>
+                            <Setter Property="FontWeight" Value="Medium"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- حالة عدم وجود بيانات -->
+        <Border Background="White"
+                CornerRadius="6"
+                BorderBrush="#E1E1E1"
+                BorderThickness="1"
+                Margin="12"
+                Visibility="{Binding Categories.Count, Converter={StaticResource CountToVisibilityConverter}}">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="20">
+                <TextBlock Text="📂" FontSize="48" HorizontalAlignment="Center" Margin="0,0,0,16"/>
+                <TextBlock Text="لا توجد فئات حالياً"
+                           FontSize="16"
+                           FontWeight="SemiBold"
+                           Foreground="#666"
+                           HorizontalAlignment="Center"/>
+                <TextBlock Text="انقر على زر 'إضافة فئة جديدة' لبدء تنظيم المنتجات"
+                           FontSize="13"
+                           Foreground="#999"
+                           HorizontalAlignment="Center"
+                           TextAlignment="Center"
+                           Margin="0,8,0,0"/>
+                <Button Content="➕ إضافة أول فئة"
+                        Command="{Binding ShowAddCategoryDialogCommand}"
+                        Style="{StaticResource PrimaryButtonStyle}"
+                        Margin="0,16,0,0"/>
+            </StackPanel>
+        </Border>
+
+        <!-- مؤشر التحميل -->
+        <Border Background="#CCFFFFFF"
+                Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Border Background="White" Padding="30" CornerRadius="8">
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <ProgressBar IsIndeterminate="True" 
+                                 Width="200" 
+                                 Height="8" 
+                                 Margin="0,0,0,16"
+                                 Background="{StaticResource EgyptianSandBrush}"
+                                 Foreground="{StaticResource EgyptianGoldBrush}"/>
+                    <TextBlock Text="جاري تحميل الفئات..."
+                               FontSize="14"
+                               FontWeight="SemiBold"
+                               HorizontalAlignment="Center"
+                               Foreground="{StaticResource EgyptianBlueBrush}"/>
+                </StackPanel>
+            </Border>
+        </Border>
+    </Grid>
+</UserControl>

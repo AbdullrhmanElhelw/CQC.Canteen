@@ -7,84 +7,76 @@
              d:DesignHeight="600" d:DesignWidth="1000"
              Background="#F4F4F4"
              FlowDirection="RightToLeft">
-
-	<UserControl.Resources>
-		<Color x:Key="EgyptianRedColor">#B22222</Color>
-		<Color x:Key="EgyptianGoldColor">#D4AF37</Color>
-		<SolidColorBrush x:Key="EgyptianRedBrush" Color="{StaticResource EgyptianRedColor}"/>
-		<SolidColorBrush x:Key="EgyptianGoldBrush" Color="{StaticResource EgyptianGoldColor}"/>
-
-		<Style x:Key="NavButtonStyle" TargetType="Button">
-			<Setter Property="Background" Value="Transparent"/>
-			<Setter Property="Foreground" Value="{StaticResource EgyptianGoldBrush}"/>
-			<Setter Property="BorderThickness" Value="0"/>
-			<Setter Property="FontSize" Value="16"/>
-			<Setter Property="FontWeight" Value="Bold"/>
-			<Setter Property="Padding" Value="20,15"/>
-			<Setter Property="HorizontalContentAlignment" Value="Right"/>
-			<Setter Property="Cursor" Value="Hand"/>
-			<Setter Property="Template">
-				<Setter.Value>
-					<ControlTemplate TargetType="Button">
-						<Border Background="{TemplateBinding Background}"
+    <UserControl.Resources>
+        <Color x:Key="EgyptianRedColor">#B22222</Color>
+        <Color x:Key="EgyptianGoldColor">#D4AF37</Color>
+        <SolidColorBrush x:Key="EgyptianRedBrush" Color="{StaticResource EgyptianRedColor}"/>
+        <SolidColorBrush x:Key="EgyptianGoldBrush" Color="{StaticResource EgyptianGoldColor}"/>
+        <Style x:Key="NavButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{StaticResource EgyptianGoldBrush}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Padding" Value="20,15"/>
+            <Setter Property="HorizontalContentAlignment" Value="Right"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
                                 Padding="{TemplateBinding Padding}">
-							<TextBlock Text="{TemplateBinding Content}"
+                            <TextBlock Text="{TemplateBinding Content}"
                                        Foreground="{TemplateBinding Foreground}"/>
-						</Border>
-					</ControlTemplate>
-				</Setter.Value>
-			</Setter>
-			<Style.Triggers>
-				<Trigger Property="IsMouseOver" Value="True">
-					<Setter Property="Background" Value="#33FFFFFF"/>
-				</Trigger>
-				<Trigger Property="IsEnabled" Value="False">
-					<Setter Property="Foreground" Value="#AAA"/>
-				</Trigger>
-			</Style.Triggers>
-		</Style>
-	</UserControl.Resources>
-
-	<Grid>
-		<Grid.ColumnDefinitions>
-			<ColumnDefinition Width="Auto"/>
-			<ColumnDefinition Width="*"/>
-		</Grid.ColumnDefinitions>
-
-		<Border Grid.Column="0"
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#33FFFFFF"/>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Foreground" Value="#AAA"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Border Grid.Column="0"
                 Width="250"
                 Background="{StaticResource EgyptianRedBrush}">
-			<Border.Effect>
-				<DropShadowEffect ShadowDepth="2" BlurRadius="10" Opacity="0.3"/>
-			</Border.Effect>
-
-			<StackPanel Orientation="Vertical" Margin="0,20,0,0">
-				<Image Source="/Assets/Logo (1) (1).png"
+            <Border.Effect>
+                <DropShadowEffect ShadowDepth="2" BlurRadius="10" Opacity="0.3"/>
+            </Border.Effect>
+            <StackPanel Orientation="Vertical" Margin="0,20,0,0">
+                <Image Source="/Assets/Logo (1) (1).png"
                        Width="100" Height="100" Margin="0,0,0,30"/>
-
-				<Button Content="إدارة الأصناف"
+                <Button Content="إدارة الأصناف"
                         Style="{StaticResource NavButtonStyle}"
                         Command="{Binding ShowProductsCommand}"/>
-
-				<Button Content="إدارة العملاء (الآجل)"
+                <Button Content="إدارة العملاء (الآجل)"
                         Style="{StaticResource NavButtonStyle}"
                         IsEnabled="False"/>
-				<Button Content="إدارة الفئات"
+                <Button Content="إدارة الفئات"
+                        Style="{StaticResource NavButtonStyle}"
+                        Command="{Binding ShowCategoriesCommand}"/>
+                <Button Content="إدارة المستخدمين"
                         Style="{StaticResource NavButtonStyle}"
                         IsEnabled="False"/>
-				<Button Content="إدارة المستخدمين"
+                <Button Content="التقارير"
                         Style="{StaticResource NavButtonStyle}"
                         IsEnabled="False"/>
-				<Button Content="التقارير"
-                        Style="{StaticResource NavButtonStyle}"
-                        IsEnabled="False"/>
-			</StackPanel>
-		</Border>
-
-		<Border Grid.Column="1" Padding="20">
-			<ContentControl Content="{Binding CurrentAdminPageViewModel}" />
-		</Border>
-	</Grid>
+            </StackPanel>
+        </Border>
+        <Border Grid.Column="1" Padding="20">
+            <ContentControl Content="{Binding CurrentAdminPageViewModel}" />
+        </Border>
+    </Grid>
 </UserControl>

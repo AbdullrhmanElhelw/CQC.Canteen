@@ -1,48 +1,49 @@
 ﻿using CQC.Canteen.UI.Commands;
-using CQC.Canteen.UI.ViewModels.Pages; // <-- (Namespace جديد)
-using Microsoft.Extensions.DependencyInjection; // <-- (مهم)
+using CQC.Canteen.UI.ViewModels.Pages;
+using Microsoft.Extensions.DependencyInjection;
 using System.Windows.Input;
 
-namespace CQC.Canteen.UI.ViewModels
+namespace CQC.Canteen.UI.ViewModels;
+
+public class AdminDashboardViewModel : BaseViewModel
 {
-    public class AdminDashboardViewModel : BaseViewModel
+    private readonly IServiceProvider _serviceProvider;
+
+    private BaseViewModel _currentAdminPageViewModel;
+    public BaseViewModel CurrentAdminPageViewModel
     {
-        private readonly IServiceProvider _serviceProvider;
+        get => _currentAdminPageViewModel;
+        set => SetProperty(ref _currentAdminPageViewModel, value);
+    }
 
-        // "المسرح" الداخلي لصفحات الأدمن
-        private BaseViewModel _currentAdminPageViewModel;
-        public BaseViewModel CurrentAdminPageViewModel
-        {
-            get => _currentAdminPageViewModel;
-            set => SetProperty(ref _currentAdminPageViewModel, value);
-        }
+    public ICommand ShowProductsCommand { get; }
+    public ICommand ShowCategoriesCommand { get; }
 
-        // الأوامر بتاعة القائمة الجانبية
-        public ICommand ShowProductsCommand { get; }
-        // (قريب هنضيف باقي الأوامر هنا)
-        // public ICommand ShowCustomersCommand { get; }
-        // public ICommand ShowCategoriesCommand { get; }
+    public AdminDashboardViewModel(IServiceProvider serviceProvider)
+    {
+        _serviceProvider = serviceProvider;
 
-        public AdminDashboardViewModel(IServiceProvider serviceProvider)
-        {
-            _serviceProvider = serviceProvider;
+        ShowProductsCommand = new RelayCommand<object>(
+            (p) => ExecuteShowProducts(),
+            (p) => true
+        );
 
-            // (1) تعريف الأوامر
-            // استخدمنا RelayCommand<object> عشان هو ده اللي موجود عندنا حالياً
-            ShowProductsCommand = new RelayCommand<object>(
-                (p) => ExecuteShowProducts(),
-                (p) => true // (ممكن بعدين نخلي الزرار non-clickable لو إحنا أصلاً في الصفحة دي)
-            );
+        ShowCategoriesCommand = new RelayCommand<object>(
+            (p) => ExecuteShowCategories(),
+            (p) => true
+        );
 
-            // (2) تحديد الصفحة الافتراضية
-            ExecuteShowProducts();
-        }
+        // الصفحة الافتراضية
+        ExecuteShowProducts();
+    }
 
-        private void ExecuteShowProducts()
-        {
-            // اطلب الـ ViewModel من الـ DI
-            CurrentAdminPageViewModel = _serviceProvider.GetRequiredService<ProductManagementViewModel>();
-        }
+    private void ExecuteShowProducts()
+    {
+        CurrentAdminPageViewModel = _serviceProvider.GetRequiredService<ProductManagementViewModel>();
+    }
+
+    private void ExecuteShowCategories()
+    {
+        CurrentAdminPageViewModel = _serviceProvider.GetRequiredService<CategoryManagementViewModel>();
     }
 }
-

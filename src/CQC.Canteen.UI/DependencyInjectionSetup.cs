@@ -38,7 +38,9 @@ namespace CQC.Canteen.UI
             services.AddTransient<ProductManagementViewModel>();
             services.AddTransient<EditProductViewModel>();
             services.AddTransient<AddProductViewModel>();
-
+            services.AddTransient<CategoryManagementViewModel>();
+            services.AddTransient<AddCategoryViewModel>();
+            services.AddTransient<EditCategoryViewModel>();
 
         }
     }
