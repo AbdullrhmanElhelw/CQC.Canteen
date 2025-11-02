@@ -16,10 +16,10 @@
         <SolidColorBrush x:Key="EgyptianRedBrush" Color="{StaticResource EgyptianRedColor}"/>
         <SolidColorBrush x:Key="EgyptianGoldBrush" Color="{StaticResource EgyptianGoldColor}"/>
 
-        <!-- 💡 ستايل أزرار التنقل -->
+        <!-- 💡 ستايل عام للأزرار -->
         <Style x:Key="NavButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="{StaticResource EgyptianGoldBrush}"/>
+            <Setter Property="Foreground" Value="White"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="FontSize" Value="16"/>
             <Setter Property="FontWeight" Value="Bold"/>
@@ -29,63 +29,92 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
+                        <Border x:Name="border"
+                                Background="{TemplateBinding Background}"
                                 Padding="{TemplateBinding Padding}">
                             <TextBlock Text="{TemplateBinding Content}"
                                        Foreground="{TemplateBinding Foreground}"/>
                         </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#22FFFFFF"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Foreground" Value="#AAA"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
-
-            <!-- تأثير Hover و Disable -->
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#33FFFFFF"/>
-                </Trigger>
-                <Trigger Property="IsEnabled" Value="False">
-                    <Setter Property="Foreground" Value="#AAA"/>
-                </Trigger>
-            </Style.Triggers>
         </Style>
 
     </UserControl.Resources>
 
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="250"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
         <!-- 🎯 القائمة الجانبية -->
         <Border Grid.Column="0"
-                Width="250"
                 Background="{StaticResource EgyptianRedBrush}">
             <Border.Effect>
                 <DropShadowEffect ShadowDepth="2" BlurRadius="10" Opacity="0.3"/>
             </Border.Effect>
 
-            <StackPanel Orientation="Vertical" Margin="0,20,0,0">
+            <StackPanel Margin="0,20,0,0">
                 <!-- اللوجو -->
                 <Image Source="/Assets/Logo (1) (1).png"
-                       Width="100" Height="100" Margin="0,0,0,30"/>
+                       Width="100" Height="100" HorizontalAlignment="Center"
+                       Margin="0,0,0,30"/>
 
-                <!-- الأزرار -->
+                <!-- إدارة الأصناف -->
                 <Button Content="🏷️ إدارة الأصناف"
-                        Style="{StaticResource NavButtonStyle}"
-                        Command="{Binding ShowProductsCommand}"/>
+                        Command="{Binding ShowProductsCommand}">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource NavButtonStyle}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsProductsActive}" Value="True">
+                                    <Setter Property="Background" Value="#22FFFFFF"/>
+                                    <Setter Property="Foreground" Value="{StaticResource EgyptianGoldBrush}"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
 
+                <!-- إدارة العملاء -->
                 <Button Content="👥 إدارة العملاء (الآجل)"
-                        Style="{StaticResource NavButtonStyle}"
-                        Command="{Binding ShowCustomersCommand}"/>
-                <!-- ✅ فعال -->
+                        Command="{Binding ShowCustomersCommand}">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource NavButtonStyle}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsCustomersActive}" Value="True">
+                                    <Setter Property="Background" Value="#22FFFFFF"/>
+                                    <Setter Property="Foreground" Value="{StaticResource EgyptianGoldBrush}"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
 
+                <!-- إدارة الفئات -->
                 <Button Content="🗂️ إدارة الفئات"
-                        Style="{StaticResource NavButtonStyle}"
-                        Command="{Binding ShowCategoriesCommand}"/>
+                        Command="{Binding ShowCategoriesCommand}">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource NavButtonStyle}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsCategoriesActive}" Value="True">
+                                    <Setter Property="Background" Value="#22FFFFFF"/>
+                                    <Setter Property="Foreground" Value="{StaticResource EgyptianGoldBrush}"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
 
+                <!-- باقي الأزرار -->
                 <Button Content="👤 إدارة المستخدمين"
                         Style="{StaticResource NavButtonStyle}"
                         IsEnabled="False"/>
@@ -97,7 +126,7 @@
         </Border>
 
         <!-- 🧩 منطقة المحتوى -->
-        <Border Grid.Column="1" Padding="20" Background="#F4F4F4">
+        <Border Grid.Column="1" Padding="20" Background="#F9F9F9">
             <ContentControl Content="{Binding CurrentAdminPageViewModel}" />
         </Border>
     </Grid>

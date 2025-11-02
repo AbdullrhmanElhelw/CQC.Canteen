@@ -10,12 +10,19 @@
 
     <Application.Resources>
         <ResourceDictionary>
-            <!-- ✅ Converters -->
+
+            <!-- ✅ Converters العامة -->
             <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
             <converters:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
             <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
             <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
             <converters:CountToVisibilityConverter x:Key="CountToVisibilityConverter"/>
+
+            <!-- ✅ Converters الإضافية المستخدمة في الـ Dashboard والعملاء -->
+            <converters:BoolToStyleConverter x:Key="BoolToStyleConverter"/>
+            <converters:BoolToTextConverter x:Key="BoolToTextConverter" 
+                                            TrueText="عسكري" 
+                                            FalseText="مدني"/>
 
             <!-- ✅ ربط الـ ViewModels العامة -->
             <DataTemplate DataType="{x:Type viewmodels:LoginViewModel}">
@@ -39,10 +46,10 @@
                 <pages:CategoryManagementView/>
             </DataTemplate>
 
-            <!-- 🎯 الإضافة الجديدة -->
             <DataTemplate DataType="{x:Type vmpages:CustomerManagementViewModel}">
                 <pages:CustomerManagementView/>
             </DataTemplate>
+
         </ResourceDictionary>
     </Application.Resources>
 </Application>

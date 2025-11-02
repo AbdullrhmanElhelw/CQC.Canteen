@@ -8,22 +8,33 @@
         xmlns:converters="clr-namespace:CQC.Canteen.UI.Converters"
         mc:Ignorable="d"
         Title="✏️ تعديل بيانات العميل"
-        Height="460" Width="520"
+        Height="480" Width="540"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
         Background="#F4F4F4"
         FlowDirection="RightToLeft"
-        FontFamily="Segoe UI">
+        FontFamily="Segoe UI"
+        AllowsTransparency="False"
+        Opacity="0">
+
+    <!-- 🪄 Animation عند التحميل -->
+    <Window.Triggers>
+        <EventTrigger RoutedEvent="Window.Loaded">
+            <BeginStoryboard>
+                <Storyboard>
+                    <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                     From="0" To="1" Duration="0:0:0.4"/>
+                </Storyboard>
+            </BeginStoryboard>
+        </EventTrigger>
+    </Window.Triggers>
 
     <Window.Resources>
-        <!-- ✅ محولات -->
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
-
         <converters:BoolToTextConverter x:Key="BoolToTextConverter"
                                         TrueText="عسكري"
                                         FalseText="مدني"/>
 
-        <!-- ✅ القيم الخاصة بالرتب -->
         <ObjectDataProvider x:Key="RankValues"
                             MethodName="GetValues"
                             ObjectType="{x:Type sys:Enum}">
@@ -32,7 +43,7 @@
             </ObjectDataProvider.MethodParameters>
         </ObjectDataProvider>
 
-        <!-- 🎨 ستايلات الأزرار -->
+        <!-- 🎨 أزرار -->
         <Style TargetType="Button" x:Key="PrimaryButtonStyle">
             <Setter Property="Background" Value="#B22222"/>
             <Setter Property="Foreground" Value="White"/>
@@ -65,99 +76,123 @@
         </Style>
     </Window.Resources>
 
-    <!-- 🧩 الواجهة -->
     <Grid>
-        <Border Background="White" CornerRadius="8" Margin="20" Padding="30">
-            <!-- ✅ ScrollViewer -->
-            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <!-- ⚙️ Loading Overlay -->
+        <Border Background="#80000000"
+                Visibility="{Binding IsSaving, Converter={StaticResource BooleanToVisibilityConverter}}"
+                CornerRadius="8" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Panel.ZIndex="5">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="200" Height="6"/>
+                <TextBlock Text="جارٍ حفظ البيانات..."
+                           Foreground="White" FontWeight="Bold"
+                           Margin="0,10,0,0" FontSize="14"/>
+            </StackPanel>
+        </Border>
+
+        <Border Background="White" CornerRadius="8" Margin="20" Padding="0">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
                 <StackPanel>
 
-                    <!-- العنوان -->
-                    <TextBlock Text="✏️ تعديل بيانات العميل"
-                               FontSize="18"
-                               FontWeight="Bold"
-                               Foreground="#003366"
-                               HorizontalAlignment="Center"
-                               Margin="0,0,0,24"/>
+                    <!-- 🧾 الهيدر -->
+                    <Border Background="#003366" CornerRadius="8,8,0,0" Padding="12" Margin="0,0,0,20">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <TextBlock Text="✏️" FontSize="18" Margin="0,0,5,0"/>
+                            <TextBlock Text="تعديل بيانات العميل"
+                                       FontSize="18"
+                                       FontWeight="Bold"
+                                       Foreground="White"/>
+                        </StackPanel>
+                    </Border>
 
-                    <!-- الاسم -->
-                    <TextBlock Text="اسم العميل *"
-                               FontSize="13"
-                               FontWeight="SemiBold"
-                               Foreground="#333"
-                               Margin="0,0,0,8"/>
-                    <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
-                             FontSize="13"
-                             Padding="8"
-                             Height="38"
-                             BorderBrush="#DDD"
-                             BorderThickness="1"
-                             Margin="0,0,0,16"/>
+                    <StackPanel Margin="30,0,30,30">
 
-                    <!-- النوع -->
-                    <TextBlock Text="نوع العميل *"
-                               FontSize="13"
-                               FontWeight="SemiBold"
-                               Foreground="#333"
-                               Margin="0,0,0,8"/>
-                    <ComboBox SelectedItem="{Binding IsMilitary, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-          FontSize="13"
-          Height="38"
-          Margin="0,0,0,16">
-                        <ComboBox.ItemsSource>
-                            <x:Array Type="{x:Type sys:Boolean}">
-                                <sys:Boolean>False</sys:Boolean>
-                                <sys:Boolean>True</sys:Boolean>
-                            </x:Array>
-                        </ComboBox.ItemsSource>
-                        <ComboBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding Converter={StaticResource BoolToTextConverter}}"/>
-                            </DataTemplate>
-                        </ComboBox.ItemTemplate>
-                    </ComboBox>
-
-                    <!-- الرتبة -->
-                    <StackPanel Margin="0,0,0,16"
-                                Visibility="{Binding IsMilitary, Converter={StaticResource BooleanToVisibilityConverter}}">
-                        <TextBlock Text="الرتبة العسكرية *"
+                        <!-- الاسم -->
+                        <TextBlock Text="اسم العميل *"
                                    FontSize="13"
                                    FontWeight="SemiBold"
                                    Foreground="#333"
                                    Margin="0,0,0,8"/>
-                        <ComboBox ItemsSource="{Binding Source={StaticResource RankValues}}"
-                                  SelectedItem="{Binding Rank, Mode=TwoWay}"
+                        <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"
+                                 FontSize="13"
+                                 Padding="8"
+                                 Height="38"
+                                 BorderBrush="#DDD"
+                                 BorderThickness="1"
+                                 Margin="0,0,0,16"/>
+
+                        <!-- النوع -->
+                        <TextBlock Text="نوع العميل *"
+                                   FontSize="13"
+                                   FontWeight="SemiBold"
+                                   Foreground="#333"
+                                   Margin="0,0,0,8"/>
+                        <ComboBox SelectedItem="{Binding IsMilitary, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                   FontSize="13"
                                   Height="38"
-                                  BorderBrush="#DDD"
-                                  BorderThickness="1"/>
+                                  Margin="0,0,0,16">
+                            <ComboBox.ItemsSource>
+                                <x:Array Type="{x:Type sys:Boolean}">
+                                    <sys:Boolean>False</sys:Boolean>
+                                    <sys:Boolean>True</sys:Boolean>
+                                </x:Array>
+                            </ComboBox.ItemsSource>
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Converter={StaticResource BoolToTextConverter}}"/>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+
+                        <!-- الرتبة -->
+                        <StackPanel Margin="0,0,0,16"
+                                    Visibility="{Binding IsMilitary, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <TextBlock Text="الرتبة العسكرية *"
+                                       FontSize="13"
+                                       FontWeight="SemiBold"
+                                       Foreground="#333"
+                                       Margin="0,0,0,8"/>
+                            <ComboBox ItemsSource="{Binding Source={StaticResource RankValues}}"
+                                      SelectedItem="{Binding Rank, Mode=TwoWay}"
+                                      FontSize="13"
+                                      Height="38"
+                                      BorderBrush="#DDD"
+                                      BorderThickness="1"/>
+                        </StackPanel>
+
+                        <!-- الحالة -->
+                        <CheckBox Content="نشط"
+                                  IsChecked="{Binding IsActive}"
+                                  FontSize="13"
+                                  Margin="0,10,0,0"
+                                  Foreground="#333"/>
+
+                        <!-- الأزرار -->
+                        <StackPanel Orientation="Horizontal"
+                                    HorizontalAlignment="Right"
+                                    Margin="0,25,0,0">
+                            <Button Content="💾 حفظ التعديلات"
+                                    Style="{StaticResource PrimaryButtonStyle}"
+                                    Width="150"
+                                    Margin="0,0,10,0"
+                                    Command="{Binding SaveCommand}"
+                                    CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"
+                                    IsDefault="True"/>
+
+                            <Button Content="✖️ إلغاء"
+                                    Style="{StaticResource SecondaryButtonStyle}"
+                                    Width="120"
+                                    Command="{Binding CancelCommand}"
+                                    CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"
+                                    IsCancel="True"/>
+                        </StackPanel>
+
+                        <!-- معلومات آخر تعديل -->
+                        <TextBlock Text="{Binding LastUpdatedInfo}"
+                                   Foreground="#777"
+                                   FontSize="11"
+                                   HorizontalAlignment="Right"
+                                   Margin="0,10,0,0"/>
                     </StackPanel>
-
-                    <!-- الحالة -->
-                    <CheckBox Content="نشط"
-                              IsChecked="{Binding IsActive}"
-                              FontSize="13"
-                              Margin="0,10,0,0"
-                              Foreground="#333"/>
-
-                    <!-- الأزرار -->
-                    <StackPanel Orientation="Horizontal"
-                                HorizontalAlignment="Right"
-                                Margin="0,25,0,0">
-                        <Button Content="💾 حفظ التعديلات"
-                                Style="{StaticResource PrimaryButtonStyle}"
-                                Width="150"
-                                Margin="0,0,10,0"
-                                Command="{Binding SaveCommand}"
-                                CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"/>
-
-                        <Button Content="✖️ إلغاء"
-                                Style="{StaticResource SecondaryButtonStyle}"
-                                Width="120"
-                                Command="{Binding CancelCommand}"
-                                CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"/>
-                    </StackPanel>
-
                 </StackPanel>
             </ScrollViewer>
         </Border>
