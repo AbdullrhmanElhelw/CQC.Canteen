@@ -1,0 +1,119 @@
+﻿<Window x:Class="CQC.Canteen.UI.Views.Windows.SelectCustomerWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:converters="clr-namespace:CQC.Canteen.UI.Converters"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        Title="اختيار العميل"
+        Width="600" Height="500"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        Background="#F9FAFB"
+        FlowDirection="RightToLeft">
+
+    <!-- Resources -->
+    <Window.Resources>
+        <converters:BooleanToBrushConverter x:Key="BooleanToBrushConverter"/>
+    </Window.Resources>
+
+    <Border CornerRadius="10"
+            Background="White"
+            BorderBrush="#DDD"
+            BorderThickness="1"
+            Padding="20"
+            Margin="10">
+        <DockPanel>
+
+            <!-- 🔍 البحث -->
+            <StackPanel DockPanel.Dock="Top" Margin="0,0,0,15">
+                <Grid>
+                    <TextBox x:Name="SearchBox"
+                             Height="38"
+                             FontSize="14"
+                             TextChanged="OnSearchTextChanged"
+                             Padding="10,0,30,0"
+                             VerticalContentAlignment="Center"/>
+
+                    <!-- Placeholder -->
+                    <TextBlock Text="ابحث بالاسم..."
+                               Foreground="Gray"
+                               Margin="15,0,0,0"
+                               VerticalAlignment="Center"
+                               FontSize="13"
+                               IsHitTestVisible="False">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Visibility" Value="Visible"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Text, ElementName=SearchBox}" Value="">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Text.Length, ElementName=SearchBox}" Value="0">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Text, ElementName=SearchBox}" Value="{x:Null}">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Text.Length, ElementName=SearchBox}" Value="1">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </Grid>
+            </StackPanel>
+
+            <!-- 👥 قائمة العملاء -->
+            <ListBox x:Name="CustomerList"
+                     SelectionMode="Single"
+                     MouseDoubleClick="CustomerList_MouseDoubleClick"
+                     BorderBrush="#EEE"
+                     BorderThickness="1"
+                     Background="WhiteSmoke">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Border CornerRadius="8"
+                                Padding="10"
+                                Margin="5"
+                                BorderBrush="#CCC"
+                                BorderThickness="1"
+                                Background="{Binding IsActive, Converter={StaticResource BooleanToBrushConverter}}">
+                            <StackPanel>
+                                <TextBlock Text="{Binding Name}" FontSize="16" FontWeight="Bold" Foreground="#222"/>
+                                <TextBlock Text="{Binding Rank}" FontSize="12" Foreground="Gray" Margin="0,3,0,0"/>
+                                <TextBlock Text="{Binding CurrentBalance, StringFormat=الرصيد الحالي: {0} ج.م}"
+                                           FontSize="12" Foreground="#555"/>
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+
+            <!-- ✅ أزرار -->
+            <StackPanel DockPanel.Dock="Bottom"
+                        Orientation="Horizontal"
+                        HorizontalAlignment="Center"
+                        Margin="0,15,0,0">
+                <Button Content="✔️ تأكيد"
+                        Width="120"
+                        Height="40"
+                        Margin="10,0"
+                        Click="Confirm_Click"
+                        Background="#B22222"
+                        Foreground="White"
+                        FontWeight="Bold"
+                        BorderThickness="0"/>
+                <Button Content="✖️ إلغاء"
+                        Width="120"
+                        Height="40"
+                        Margin="10,0"
+                        Click="Cancel_Click"
+                        Background="Transparent"
+                        BorderBrush="#B22222"
+                        BorderThickness="2"
+                        Foreground="#B22222"
+                        FontWeight="Bold"/>
+            </StackPanel>
+        </DockPanel>
+    </Border>
+</Window>

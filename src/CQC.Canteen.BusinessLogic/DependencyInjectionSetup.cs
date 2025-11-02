@@ -1,6 +1,7 @@
 ﻿using CQC.Canteen.BusinessLogic.Services.Authentication;
 using CQC.Canteen.BusinessLogic.Services.Categories;
 using CQC.Canteen.BusinessLogic.Services.Customers;
+using CQC.Canteen.BusinessLogic.Services.Orders;
 using CQC.Canteen.BusinessLogic.Services.Products;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,7 +17,8 @@ public static class DependencyInjectionSetup
         services.AddScoped<IAuthenticationService, AuthenticationService>();
         services.AddScoped<IProductService, ProductService>();
         services.AddScoped<ICategoryService, CategoryService>();
-        services.AddTransient<ICustomerService, CustomerService>();
+        services.AddScoped<ICustomerService, CustomerService>();
+        services.AddScoped<IOrderService, OrderService>();
 
 
 
