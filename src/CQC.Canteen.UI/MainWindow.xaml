@@ -3,7 +3,6 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:CQC.Canteen.UI"
         mc:Ignorable="d"
         Title="CQC Canteen System - مركز تأهيل الحاسبات" 
         Height="720" 
@@ -12,93 +11,301 @@
         MinHeight="600"
         MinWidth="1000"
         Icon="/Assets/Logo (1) (1).png"
-        FontFamily="Tahoma">
+        FontFamily="Tahoma"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent">
 
     <Window.Resources>
         <Color x:Key="EgyptianRedColor">#B22222</Color>
         <Color x:Key="EgyptianGoldColor">#D4AF37</Color>
         <Color x:Key="EgyptianBlueColor">#003366</Color>
-
         <SolidColorBrush x:Key="EgyptianRedBrush" Color="{StaticResource EgyptianRedColor}"/>
         <SolidColorBrush x:Key="EgyptianGoldBrush" Color="{StaticResource EgyptianGoldColor}"/>
         <SolidColorBrush x:Key="EgyptianBlueBrush" Color="{StaticResource EgyptianBlueColor}"/>
+
+        <Style x:Key="WindowControlButton" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Width" Value="40"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#22FFFFFF"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="CloseButton" TargetType="Button" BasedOn="{StaticResource WindowControlButton}">
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#E81123"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="UserInfoText" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
 
         <Style TargetType="Button" x:Key="LogoutButton">
             <Setter Property="Background" Value="{StaticResource EgyptianRedBrush}"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="Padding" Value="15,8"/>
             <Setter Property="Margin" Value="10,0"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" CornerRadius="3">
+                        <Border x:Name="border" 
+                                Background="{TemplateBinding Background}" 
+                                CornerRadius="5"
+                                Padding="{TemplateBinding Padding}">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#C73E3E"/>
+                                <Setter TargetName="border" Property="Background" Value="#C73E3E"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#A02222"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <Style x:Key="StatusBarText" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#666"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="10,0"/>
+        </Style>
     </Window.Resources>
 
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+    <Border Background="White" 
+            BorderBrush="{StaticResource EgyptianBlueBrush}" 
+            BorderThickness="1"
+            CornerRadius="10">
+        <Border.Effect>
+            <DropShadowEffect ShadowDepth="0" Color="Black" Opacity="0.3" BlurRadius="20"/>
+        </Border.Effect>
 
-        <Border Grid.Row="0" Background="{StaticResource EgyptianBlueBrush}" MinHeight="50">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
-            <Border.Effect>
-                <DropShadowEffect ShadowDepth="4" Color="Black" Opacity="0.3" BlurRadius="5"/>
-            </Border.Effect>
+            <Border Grid.Row="0" 
+                    Background="{StaticResource EgyptianBlueBrush}" 
+                    CornerRadius="10,10,0,0"
+                    MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+                <Border.Effect>
+                    <DropShadowEffect ShadowDepth="4" Color="Black" Opacity="0.3" BlurRadius="5"/>
+                </Border.Effect>
 
-            <Border.Style>
-                <Style TargetType="Border">
-                    <Setter Property="Visibility" Value="Collapsed"/>
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding IsLoggedIn}" Value="True">
-                            <Setter Property="Visibility" Value="Visible"/>
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </Border.Style>
+                <Grid Height="50">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
 
-            <Grid Margin="10,0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" 
+                                Orientation="Horizontal" 
+                                VerticalAlignment="Center"
+                                Margin="15,0">
+                        <Image Source="/Assets/Logo (1) (1).png" 
+                               Width="32" 
+                               Height="32" 
+                               Margin="0,0,10,0"/>
+                        <TextBlock Text="CQC Canteen System" 
+                                   Foreground="White" 
+                                   FontSize="18" 
+                                   FontWeight="Bold"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
 
-                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Image Source="{Binding Icon, RelativeSource={RelativeSource AncestorType=Window}}" 
-                           Width="32" Height="32" Margin="5"/>
-                    <TextBlock Text="{Binding Title, RelativeSource={RelativeSource AncestorType=Window}}" 
-                               Foreground="White" 
+                    <StackPanel Grid.Column="1" 
+                                Orientation="Horizontal" 
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Center"
+                                Margin="30,0,0,0">
+                        <StackPanel.Style>
+                            <Style TargetType="StackPanel">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsLoggedIn}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </StackPanel.Style>
+
+                        <Border Width="32" 
+                                Height="32" 
+                                CornerRadius="16"
+                                Background="{StaticResource EgyptianGoldBrush}"
+                                Margin="0,0,10,0">
+                            <TextBlock Text="👤" 
+                                       FontSize="18"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"/>
+                        </Border>
+
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="{Binding CurrentUserName, FallbackValue='مستخدم النظام'}" 
+                                       Style="{StaticResource UserInfoText}"
+                                       FontWeight="Bold"/>
+                            <TextBlock Text="{Binding CurrentUserRole, FallbackValue='Admin'}" 
+                                       Style="{StaticResource UserInfoText}"
+                                       FontSize="10"
+                                       Opacity="0.8"/>
+                        </StackPanel>
+
+                        <Rectangle Width="1" 
+                                   Height="30" 
+                                   Fill="#44FFFFFF"
+                                   Margin="15,0"/>
+
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="{Binding CurrentDate, FallbackValue='الإثنين، 3 نوفمبر 2025'}" 
+                                       Style="{StaticResource UserInfoText}"
+                                       FontSize="11"/>
+                            <TextBlock Text="{Binding CurrentTime, FallbackValue='12:00 PM'}" 
+                                       Style="{StaticResource UserInfoText}"
+                                       FontSize="10"
+                                       Opacity="0.8"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <Button Grid.Column="2" 
+                            Content="🚪 تسجيل خروج"
+                            Command="{Binding LogoutCommand}"
+                            VerticalAlignment="Center">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource LogoutButton}">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsLoggedIn}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
+                    <StackPanel Grid.Column="3" 
+                                Orientation="Horizontal" 
+                                HorizontalAlignment="Right">
+                        <Button Content="🗕" 
+                                Style="{StaticResource WindowControlButton}"
+                                Click="MinimizeButton_Click"
+                                ToolTip="تصغير"/>
+                        <Button Content="🗖" 
+                                Style="{StaticResource WindowControlButton}"
+                                Click="MaximizeButton_Click"
+                                ToolTip="تكبير"/>
+                        <Button Content="✕" 
+                                Style="{StaticResource CloseButton}"
+                                Click="CloseButton_Click"
+                                ToolTip="إغلاق"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <ContentControl Grid.Row="1" 
+                            Content="{Binding CurrentViewModel}">
+                <ContentControl.Style>
+                    <Style TargetType="ContentControl">
+                        <Setter Property="RenderTransform">
+                            <Setter.Value>
+                                <TranslateTransform X="0" Y="0"/>
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <EventTrigger RoutedEvent="Loaded">
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                         From="0" To="1" Duration="0:0:0.3"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </ContentControl.Style>
+            </ContentControl>
+
+            <Border Grid.Row="2" 
+                    Background="#F0F0F0" 
+                    BorderBrush="#DDD" 
+                    BorderThickness="0,1,0,0"
+                    Height="28"
+                    CornerRadius="0,0,10,10">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" Orientation="Horizontal">
+                        <Ellipse Width="8" Height="8" 
+                                 Fill="#4CAF50" 
+                                 Margin="10,0,5,0"
+                                 ToolTip="متصل بقاعدة البيانات"/>
+                        <TextBlock Text="متصل" 
+                                   Style="{StaticResource StatusBarText}"/>
+                    </StackPanel>
+
+                    <TextBlock Grid.Column="1" 
+                               Text="{Binding LastActivity, FallbackValue='آخر نشاط: لا يوجد'}"
+                               Style="{StaticResource StatusBarText}"
+                               HorizontalAlignment="Center"/>
+
+                    <TextBlock Grid.Column="2" 
+                               Text="الإصدار 1.0.0"
+                               Style="{StaticResource StatusBarText}"/>
+                </Grid>
+            </Border>
+
+            <Border Grid.Row="1" 
+                    Background="#CC000000"
+                    Visibility="Collapsed">
+                <StackPanel HorizontalAlignment="Center" 
+                            VerticalAlignment="Center">
+                    <TextBlock Text="⏳" 
+                               FontSize="48" 
+                               HorizontalAlignment="Center"
+                               Foreground="White"/>
+                    <TextBlock Text="جاري التحميل..." 
                                FontSize="18" 
-                               FontWeight="Bold"
-                               VerticalAlignment="Center"/>
+                               Foreground="White"
+                               Margin="0,10,0,0"
+                               HorizontalAlignment="Center"/>
                 </StackPanel>
-
-                <Button Grid.Column="2" 
-                        Content="🚪 تسجيل خروج"
-                        Command="{Binding LogoutCommand}"
-                        Style="{StaticResource LogoutButton}"
-                        VerticalAlignment="Center"
-                        HorizontalAlignment="Right"/>
-            </Grid>
-        </Border>
-
-        <ContentControl Grid.Row="1" Content="{Binding CurrentViewModel}" />
-
-    </Grid>
-
+            </Border>
+        </Grid>
+    </Border>
 </Window>
