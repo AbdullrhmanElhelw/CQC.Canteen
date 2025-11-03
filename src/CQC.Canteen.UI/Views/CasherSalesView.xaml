@@ -53,7 +53,6 @@
 
         <Border Grid.Column="0" CornerRadius="10" Background="White" Padding="15" Margin="5" BorderBrush="#EEE" BorderThickness="1">
             <StackPanel>
-
                 <TextBlock Text="{Binding CartItems.Count, StringFormat='🛍️ سلة المشتريات ({0})'}" 
                            FontSize="20" FontWeight="Bold" Foreground="#B22222" Margin="0,0,0,15"/>
 
@@ -61,7 +60,6 @@
                           HeadersVisibility="Column" RowHeaderWidth="0" Margin="0,0,0,10" Height="400">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="الصنف" Binding="{Binding Name}" Width="*"/>
-
                         <DataGridTemplateColumn Header="الكمية" Width="100">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
@@ -71,9 +69,7 @@
                                                 CommandParameter="{Binding}" 
                                                 Width="25" Height="25" Padding="0"
                                                 Background="#FFCDD2" Foreground="#B71C1C" FontWeight="Bold" BorderThickness="0"/>
-
                                         <TextBlock Text="{Binding Quantity}" Margin="8,0" FontWeight="Bold" VerticalAlignment="Center"/>
-
                                         <Button Content="+" 
                                                 Command="{Binding DataContext.IncreaseQuantityCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
                                                 CommandParameter="{Binding}" 
@@ -83,10 +79,8 @@
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
-
                         <DataGridTextColumn Header="السعر" Binding="{Binding Price, StringFormat={}{0:N2}}" Width="90" />
                         <DataGridTextColumn Header="الإجمالي" Binding="{Binding Total, StringFormat={}{0:N2}}" Width="90"/>
-
                         <DataGridTemplateColumn Width="40">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
@@ -101,13 +95,11 @@
                 </DataGrid>
 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,5">
-
                     <TextBlock Margin="0,0,20,0" VerticalAlignment="Center">
                         <Hyperlink Command="{Binding ClearCartCommand}" Foreground="#DC3545" TextDecorations="None">
                             <TextBlock Text="🗑️ إفراغ السلة"/>
                         </Hyperlink>
                     </TextBlock>
-
                     <TextBlock Text="الإجمالي:" FontWeight="Bold" FontSize="16" Margin="5,0"/>
                     <TextBlock x:Name="TotalText"
                                Text="{Binding TotalAmount, StringFormat={}{0:N2}}"
@@ -139,14 +131,12 @@
                 <TextBlock Grid.Row="0" Text="🧺 المنتجات المتاحة" FontSize="20" FontWeight="Bold" Foreground="#B22222" Margin="0,0,0,15"/>
 
                 <DockPanel Grid.Row="1" Margin="0,0,0,15">
-
                     <TextBox DockPanel.Dock="Right" Width="250" Height="35" Padding="5"
                              Text="{Binding ProductSearchText, UpdateSourceTrigger=PropertyChanged}"
                              VerticalContentAlignment="Center" FontSize="14"
                              BorderBrush="#CCC" BorderThickness="1"
                              Background="#F9F9F9"
                              Style="{StaticResource TextBoxPlaceholder}"/>
-
                     <ComboBox Width="200" Height="35"
                               Margin="10,0,0,0"
                               ItemsSource="{Binding Categories}"
@@ -179,16 +169,50 @@
 
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Border Width="160" Height="140" Margin="10" Padding="10"
+                                <Border Width="160" Height="160" 
+                                        Margin="10" Padding="10"
                                         Background="#F9F9F9" CornerRadius="8" BorderBrush="#DDD" BorderThickness="1">
                                     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                                         <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="16" HorizontalAlignment="Center"/>
                                         <TextBlock Text="{Binding SalePrice, StringFormat={}{0} ج.م}" Foreground="#B22222" FontSize="14" Margin="0,5,0,0" HorizontalAlignment="Center"/>
-                                        <TextBlock Text="{Binding CategoryName}" FontSize="12" Foreground="Gray" HorizontalAlignment="Center" Margin="0,5,0,10"/>
-                                        <Button Content="➕ إضافة"
-                                                Command="{Binding DataContext.AddToCartCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+
+                                        <TextBlock Text="{Binding StockQuantity, StringFormat='المتاح: {0}'}" 
+                                                   FontSize="12" 
+                                                   HorizontalAlignment="Center"
+                                                   Margin="0,5,0,5">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Foreground" Value="#2E7D32"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding StockQuantity}" Value="0">
+                                                            <Setter Property="Foreground" Value="#D32F2F"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+
+                                        <TextBlock Text="{Binding CategoryName}" FontSize="12" Foreground="Gray" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+
+                                        <Button Command="{Binding DataContext.AddToCartCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"
-                                                Width="100" Height="30" Background="#B22222" Foreground="White" BorderThickness="0" Cursor="Hand"/>
+                                                Width="100" Height="30" BorderThickness="0">
+                                            <Button.Style>
+                                                <Style TargetType="Button">
+                                                    <Setter Property="Content" Value="➕ إضافة"/>
+                                                    <Setter Property="Background" Value="#B22222"/>
+                                                    <Setter Property="Foreground" Value="White"/>
+                                                    <Setter Property="Cursor" Value="Hand"/>
+                                                    <Style.Triggers>
+                                                        <Trigger Property="IsEnabled" Value="False">
+                                                            <Setter Property="Content" Value="🚫 نفذت الكمية"/>
+                                                            <Setter Property="Background" Value="#9E9E9E"/>
+                                                            <Setter Property="Cursor" Value="No"/>
+                                                        </Trigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Button.Style>
+                                        </Button>
                                     </StackPanel>
                                 </Border>
                             </DataTemplate>

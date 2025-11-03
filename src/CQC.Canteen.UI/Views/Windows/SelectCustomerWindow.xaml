@@ -3,14 +3,13 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:converters="clr-namespace:CQC.Canteen.UI.Converters"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
-        Title="اختيار العميل"
-        Width="600" Height="500"
+        Title="تسجيل بيع آجل"
+        Width="600" Height="650" 
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
         Background="#F9FAFB"
         FlowDirection="RightToLeft">
 
-    <!-- Resources -->
     <Window.Resources>
         <converters:BooleanToBrushConverter x:Key="BooleanToBrushConverter"/>
     </Window.Resources>
@@ -23,7 +22,6 @@
             Margin="10">
         <DockPanel>
 
-            <!-- 🔍 البحث -->
             <StackPanel DockPanel.Dock="Top" Margin="0,0,0,15">
                 <Grid>
                     <TextBox x:Name="SearchBox"
@@ -32,8 +30,6 @@
                              TextChanged="OnSearchTextChanged"
                              Padding="10,0,30,0"
                              VerticalContentAlignment="Center"/>
-
-                    <!-- Placeholder -->
                     <TextBlock Text="ابحث بالاسم..."
                                Foreground="Gray"
                                Margin="15,0,0,0"
@@ -42,19 +38,10 @@
                                IsHitTestVisible="False">
                         <TextBlock.Style>
                             <Style TargetType="TextBlock">
-                                <Setter Property="Visibility" Value="Visible"/>
+                                <Setter Property="Visibility" Value="Collapsed"/>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding Text, ElementName=SearchBox}" Value="">
                                         <Setter Property="Visibility" Value="Visible"/>
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Text.Length, ElementName=SearchBox}" Value="0">
-                                        <Setter Property="Visibility" Value="Visible"/>
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Text, ElementName=SearchBox}" Value="{x:Null}">
-                                        <Setter Property="Visibility" Value="Visible"/>
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Text.Length, ElementName=SearchBox}" Value="1">
-                                        <Setter Property="Visibility" Value="Collapsed"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -63,7 +50,87 @@
                 </Grid>
             </StackPanel>
 
-            <!-- 👥 قائمة العملاء -->
+            <StackPanel DockPanel.Dock="Bottom"
+                        Orientation="Horizontal"
+                        HorizontalAlignment="Center"
+                        Margin="0,15,0,0">
+                <Button Content="✔️ تأكيد"
+                        Width="120"
+                        Height="40"
+                        Margin="10,0"
+                        Click="Confirm_Click"
+                        Background="#B22222"
+                        Foreground="White"
+                        FontWeight="Bold"
+                        BorderThickness="0"/>
+                <Button Content="✖️ إلغاء"
+                        Width="120"
+                        Height="40"
+                        Margin="10,0"
+                        Click="Cancel_Click"
+                        Background="Transparent"
+                        BorderBrush="#B22222"
+                        BorderThickness="2"
+                        Foreground="#B22222"
+                        FontWeight="Bold"/>
+            </StackPanel>
+
+            <StackPanel DockPanel.Dock="Bottom" Margin="0,15,0,0">
+                <Border Background="#F9FAFB" CornerRadius="8" Padding="15" BorderBrush="#EEE" BorderThickness="1">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Grid.Column="0" 
+                                   Text="إجمالي الفاتورة:" 
+                                   FontWeight="Bold" 
+                                   VerticalAlignment="Center" 
+                                   Margin="0,0,10,0"
+                                   FontSize="16"/>
+                        <TextBlock x:Name="TotalBillText" Grid.Row="0" Grid.Column="1" 
+                                   Text="0.00 ج.م" 
+                                   FontSize="18" 
+                                   Foreground="#B22222" 
+                                   FontWeight="Bold"/>
+
+                        <TextBlock Grid.Row="1" Grid.Column="0" 
+                                   Text="المبلغ المدفوع الآن:" 
+                                   FontWeight="Bold" 
+                                   VerticalAlignment="Center" 
+                                   Margin="0,10,10,0"
+                                   FontSize="16"/>
+                        <TextBox x:Name="AmountPaidBox" Grid.Row="1" Grid.Column="1" 
+                                 Width="180" HorizontalAlignment="Left"
+                                 Text="0" 
+                                 Margin="0,10,0,0" 
+                                 VerticalContentAlignment="Center"
+                                 Padding="5"
+                                 FontSize="16"
+                                 TextChanged="AmountPaidBox_TextChanged"/>
+
+                        <TextBlock Grid.Row="2" Grid.Column="0" 
+                                   Text="المتبقي (سيضاف للدين):" 
+                                   FontWeight="Bold" 
+                                   VerticalAlignment="Center" 
+                                   Margin="0,10,10,0"
+                                   FontSize="16"/>
+                        <TextBlock x:Name="RemainingAmountText" Grid.Row="2" Grid.Column="1" 
+                                   Text="0.00 ج.م" 
+                                   FontSize="18" 
+                                   Foreground="#D32F2F" 
+                                   FontWeight="Bold" 
+                                   Margin="0,10,0,0"/>
+                    </Grid>
+                </Border>
+            </StackPanel>
+
             <ListBox x:Name="CustomerList"
                      SelectionMode="Single"
                      MouseDoubleClick="CustomerList_MouseDoubleClick"
@@ -89,31 +156,6 @@
                 </ListBox.ItemTemplate>
             </ListBox>
 
-            <!-- ✅ أزرار -->
-            <StackPanel DockPanel.Dock="Bottom"
-                        Orientation="Horizontal"
-                        HorizontalAlignment="Center"
-                        Margin="0,15,0,0">
-                <Button Content="✔️ تأكيد"
-                        Width="120"
-                        Height="40"
-                        Margin="10,0"
-                        Click="Confirm_Click"
-                        Background="#B22222"
-                        Foreground="White"
-                        FontWeight="Bold"
-                        BorderThickness="0"/>
-                <Button Content="✖️ إلغاء"
-                        Width="120"
-                        Height="40"
-                        Margin="10,0"
-                        Click="Cancel_Click"
-                        Background="Transparent"
-                        BorderBrush="#B22222"
-                        BorderThickness="2"
-                        Foreground="#B22222"
-                        FontWeight="Bold"/>
-            </StackPanel>
         </DockPanel>
     </Border>
 </Window>

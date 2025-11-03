@@ -54,8 +54,6 @@ namespace CQC.Canteen.UI.ViewModels
         public ICommand RemoveFromCartCommand { get; }
         public ICommand PayCashCommand { get; }
         public ICommand PayDeferredCommand { get; }
-
-        // *** تم التعديل هنا: إضافة الأوامر الجديدة ***
         public ICommand IncreaseQuantityCommand { get; }
         public ICommand DecreaseQuantityCommand { get; }
         public ICommand ClearCartCommand { get; }
@@ -72,12 +70,13 @@ namespace CQC.Canteen.UI.ViewModels
             GroupedProductsView.GroupDescriptions.Add(new PropertyGroupDescription("CategoryName"));
             GroupedProductsView.Filter = FilterProductsPredicate;
 
-            AddToCartCommand = new RelayCommand<ProductDto>(AddToCart);
+            // *** تعديل: ربط الأمر بشرط التحقق من المخزون ***
+            AddToCartCommand = new RelayCommand<ProductDto>(AddToCart, CanAddToCart);
+
             RemoveFromCartCommand = new RelayCommand<SaleItem>(RemoveFromCart);
             PayCashCommand = new RelayCommand<object>(async _ => await ExecutePayCashAsync());
             PayDeferredCommand = new RelayCommand<object>(async _ => await ExecutePayDeferredAsync());
 
-            // *** تم التعديل هنا: تهيئة الأوامر الجديدة ***
             IncreaseQuantityCommand = new RelayCommand<SaleItem>(IncreaseQuantity);
             DecreaseQuantityCommand = new RelayCommand<SaleItem>(DecreaseQuantity);
             ClearCartCommand = new RelayCommand<object>(ClearCart);
@@ -143,13 +142,30 @@ namespace CQC.Canteen.UI.ViewModels
             return matchesSearch && matchesCategory;
         }
 
+        // *** إضافة: دالة التحقق من المخزون ***
+        private bool CanAddToCart(ProductDto? product)
+        {
+            if (product == null)
+                return false;
+
+            // افترض أن ProductDto يحتوي على هذه الخاصية
+            return product.StockQuantity > 0;
+        }
+
         private void AddToCart(ProductDto product)
         {
             if (product == null) return;
+
+            // *** تعديل: تحقق دفاعي ***
+            if (product.StockQuantity <= 0)
+            {
+                MessageBox.Show("عفواً، هذا المنتج نفذت كميته.", "نفذت الكمية", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             var existing = CartItems.FirstOrDefault(x => x.ProductId == product.Id);
             if (existing != null)
             {
-                // تم التعديل لاستدعاء الميثود الجديدة
                 IncreaseQuantity(existing);
             }
             else
@@ -175,22 +191,22 @@ namespace CQC.Canteen.UI.ViewModels
         public void UpdateTotal() => TotalAmount = CartItems.Sum(i => i.Total);
 
 
-        // *** تم التعديل هنا: إضافة الميثودز الخاصة بالأوامر الجديدة ***
-
-        /// <summary>
-        /// زيادة كمية صنف في السلة
-        /// </summary>
         private void IncreaseQuantity(SaleItem? item)
         {
             if (item == null) return;
+
+            // *** تعديل: التحقق من المخزون عند الزيادة ***
+            var product = Products.FirstOrDefault(p => p.Id == item.ProductId);
+            if (product != null && item.Quantity >= product.StockQuantity)
+            {
+                MessageBox.Show($"لا يمكن إضافة المزيد، الكمية المتاحة هي {product.StockQuantity} فقط.", "تنبيه", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             item.Quantity++;
             UpdateTotal();
-            // ملحوظة: لو عندك كمية في المخزن، ده مكان التحقق منها
         }
 
-        /// <summary>
-        /// تقليل كمية صنف في السلة أو حذفه لو وصل لـ 1
-        /// </summary>
         private void DecreaseQuantity(SaleItem? item)
         {
             if (item == null) return;
@@ -201,25 +217,19 @@ namespace CQC.Canteen.UI.ViewModels
             }
             else if (item.Quantity == 1)
             {
-                // الحذف التلقائي لو الكمية هتوصل صفر
                 RemoveFromCart(item);
             }
         }
 
-        /// <summary>
-        /// إفراغ سلة المشتريات بالكامل
-        /// </summary>
         private void ClearCart(object? _ = null)
         {
             if (!CartItems.Any()) return;
-
             if (MessageBox.Show("هل أنت متأكد أنك تريد إفراغ السلة؟", "تأكيد", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
             {
                 CartItems.Clear();
                 UpdateTotal();
             }
         }
-
 
         private async Task ExecutePayCashAsync()
         {
@@ -231,7 +241,7 @@ namespace CQC.Canteen.UI.ViewModels
 
             var dto = new CreateOrderDto
             {
-                CreatedByUserId = 1, //TODO: استبدل بالـ ID الخاص بالمستخدم المسجل
+                CreatedByUserId = 1, //TODO:
                 PaymentMethod = PaymentMethod.Cash,
                 Items = CartItems.Select(c => new OrderItemDto
                 {
@@ -248,9 +258,10 @@ namespace CQC.Canteen.UI.ViewModels
                 CartItems.Clear();
                 UpdateTotal();
             }
-            //TODO: معالجة الأخطاء هنا
+            //TODO: معالجة الأخطاء
         }
 
+        // *** تعديل: دالة الدفع الآجل ***
         private async Task ExecutePayDeferredAsync()
         {
             if (!CartItems.Any())
@@ -259,15 +270,20 @@ namespace CQC.Canteen.UI.ViewModels
                 return;
             }
 
-            var dialog = new Views.Windows.SelectCustomerWindow(_customerService);
+            // 1. تمرير الإجمالي (TotalAmount) إلى الشاشة
+            var dialog = new Views.Windows.SelectCustomerWindow(_customerService, this.TotalAmount);
+
             if (dialog.ShowDialog() != true) return;
 
+            // 2. الحصول على العميل والمبلغ المدفوع من الشاشة
             var selectedCustomer = dialog.SelectedCustomer;
+            var amountPaid = dialog.AmountPaid;
+
             if (selectedCustomer == null) return;
 
             var dto = new CreateOrderDto
             {
-                CreatedByUserId = 1, //TODO: استبدل بالـ ID الخاص بالمستخدم المسجل
+                CreatedByUserId = 1, //TODO:
                 PaymentMethod = PaymentMethod.Deferred,
                 CustomerId = selectedCustomer.Id,
                 Items = CartItems.Select(c => new OrderItemDto
@@ -275,17 +291,26 @@ namespace CQC.Canteen.UI.ViewModels
                     ProductId = c.ProductId,
                     Quantity = c.Quantity,
                     UnitPrice = c.Price
-                }).ToList()
+                }).ToList(),
+
+                // 3. إرسال المبلغ المدفوع (تأكد أن Dto يدعم هذا)
+                AmountPaid = amountPaid
             };
 
             var result = await _orderService.CreateDeferredOrderAsync(dto, default);
             if (result.IsSuccess)
             {
-                MessageBox.Show($"✅ تم تسجيل البيع الآجل باسم {selectedCustomer.Name}", "نجاح", MessageBoxButton.OK, MessageBoxImage.Information);
+                decimal remaining = this.TotalAmount - amountPaid;
+                MessageBox.Show($"✅ تم تسجيل البيع الآجل باسم {selectedCustomer.Name}" +
+                                $"\nالإجمالي: {this.TotalAmount:N2} ج.م" +
+                                $"\nالمدفوع: {amountPaid:N2} ج.م" +
+                                $"\nالمتبقي (دين): {remaining:N2} ج.م",
+                                "نجاح", MessageBoxButton.OK, MessageBoxImage.Information);
+
                 CartItems.Clear();
                 UpdateTotal();
             }
-            //TODO: معالجة الأخطاء هنا
+            //TODO: معالجة الأخطاء
         }
     }
 

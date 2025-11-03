@@ -8,4 +8,5 @@ public record CreateOrderDto
     public PaymentMethod PaymentMethod { get; set; }
     public int? CustomerId { get; set; }
     public List<OrderItemDto> Items { get; set; } = [];
+    public decimal AmountPaid { get; set; }
 }
