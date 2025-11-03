@@ -1,5 +1,7 @@
 ﻿using CQC.Canteen.BusinessLogic;
+using CQC.Canteen.BusinessLogic.Services.Printing;
 using CQC.Canteen.Domain;
+using CQC.Canteen.UI.Services;
 using CQC.Canteen.UI.ViewModels; // عشان MainViewModel و LoginViewModel
 using CQC.Canteen.UI.ViewModels.Pages;
 using CQC.Canteen.UI.Views;       // عشان LoginView
@@ -44,7 +46,7 @@ public static class ServicesRegistration
         services.AddTransient<CustomerManagementViewModel>();
         services.AddTransient<AddCustomerViewModel>();
         services.AddTransient<EditCustomerViewModel>();
-
+        services.AddTransient<IPrintingService, WindowsPrintingService>();
     }
 }
 
