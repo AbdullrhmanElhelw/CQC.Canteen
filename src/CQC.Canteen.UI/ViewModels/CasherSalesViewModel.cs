@@ -23,14 +23,13 @@ public class CasherSalesViewModel : BaseViewModel
     private readonly IOrderService _orderService;
     private readonly ICustomerService _customerService;
     private readonly ICategoryService _categoryService;
-    private readonly IPrintingService _printingService; // *** (1. تمت الإضافة) ***
+    private readonly IPrintingService _printingService;
 
     public ObservableCollection<ProductDto> Products { get; } = new();
     public ObservableCollection<SaleItem> CartItems { get; } = new();
     public ObservableCollection<CategoryDto> Categories { get; } = new();
     public ICollectionView GroupedProductsView { get; }
 
-    // ... (الخصائص الأخرى كما هي: SelectedCategory, ProductSearchText, TotalAmount) ...
     #region Properties
     private CategoryDto? _selectedCategory;
     public CategoryDto? SelectedCategory
@@ -56,6 +55,10 @@ public class CasherSalesViewModel : BaseViewModel
     public event EventHandler<decimal>? TotalAmountChanged;
     #endregion
 
+    #region Static Event for Product Refresh
+    public static event EventHandler? ProductsUpdated;
+    #endregion
+
     public ICommand AddToCartCommand { get; }
     public ICommand RemoveFromCartCommand { get; }
     public ICommand PayCashCommand { get; }
@@ -64,20 +67,18 @@ public class CasherSalesViewModel : BaseViewModel
     public ICommand DecreaseQuantityCommand { get; }
     public ICommand ClearCartCommand { get; }
 
-
-    // *** (2. تعديل الـ Constructor) ***
     public CasherSalesViewModel(
         IProductService productService,
         IOrderService orderService,
         ICustomerService customerService,
         ICategoryService categoryService,
-        IPrintingService printingService) // (تمت إضافة سيرفس الطباعة)
+        IPrintingService printingService)
     {
         _productService = productService;
         _orderService = orderService;
         _customerService = customerService;
         _categoryService = categoryService;
-        _printingService = printingService; // (تمت الإضافة)
+        _printingService = printingService;
 
         GroupedProductsView = CollectionViewSource.GetDefaultView(Products);
         GroupedProductsView.GroupDescriptions.Add(new PropertyGroupDescription("CategoryName"));
@@ -87,16 +88,17 @@ public class CasherSalesViewModel : BaseViewModel
         RemoveFromCartCommand = new RelayCommand<SaleItem>(RemoveFromCart);
         PayCashCommand = new RelayCommand<object>(async _ => await ExecutePayCashAsync());
         PayDeferredCommand = new RelayCommand<object>(async _ => await ExecutePayDeferredAsync());
-
         IncreaseQuantityCommand = new RelayCommand<SaleItem>(IncreaseQuantity);
         DecreaseQuantityCommand = new RelayCommand<SaleItem>(DecreaseQuantity);
         ClearCartCommand = new RelayCommand<object>(ClearCart);
 
+        // 🔔 اشترك في الحدث العام لتحديث المنتجات عند أي بيع
+        ProductsUpdated += async (_, __) => await LoadProductsAsync();
+
         _ = InitializeAsync();
     }
 
-    // ... (الدوال المساعدة كما هي: InitializeAsync, LoadProductsAsync, LoadCategoriesAsync) ...
-    #region Loading and Filtering
+    #region Initialization & Filtering
     private async Task InitializeAsync()
     {
         await LoadCategoriesAsync();
@@ -115,6 +117,8 @@ public class CasherSalesViewModel : BaseViewModel
         Products.Clear();
         foreach (var p in result.Value.Where(p => p.IsActive))
             Products.Add(p);
+
+        ApplyFilter();
     }
 
     private async Task LoadCategoriesAsync()
@@ -130,44 +134,30 @@ public class CasherSalesViewModel : BaseViewModel
         }
     }
 
-    private void ApplyFilter()
-    {
-        GroupedProductsView.Refresh();
-    }
+    private void ApplyFilter() => GroupedProductsView.Refresh();
 
     private bool FilterProductsPredicate(object obj)
     {
         if (obj is not ProductDto product)
             return false;
 
-        bool matchesSearch = true;
-        if (!string.IsNullOrWhiteSpace(ProductSearchText))
-        {
-            matchesSearch = (product.Name ?? "").Contains(ProductSearchText, StringComparison.OrdinalIgnoreCase);
-        }
+        bool matchesSearch = string.IsNullOrWhiteSpace(ProductSearchText)
+            || (product.Name ?? "").Contains(ProductSearchText, StringComparison.OrdinalIgnoreCase);
 
-        bool matchesCategory = true;
-        if (SelectedCategory != null && SelectedCategory.Name != "عرض الكل")
-        {
-            matchesCategory = (product.CategoryName ?? "") == SelectedCategory.Name;
-        }
+        bool matchesCategory = SelectedCategory == null
+            || SelectedCategory.Name == "عرض الكل"
+            || (product.CategoryName ?? "") == SelectedCategory.Name;
 
         return matchesSearch && matchesCategory;
     }
     #endregion
 
-    // ... (دوال السلة كما هي: CanAddToCart, AddToCart, RemoveFromCart, UpdateTotal, IncreaseQuantity, DecreaseQuantity, ClearCart) ...
     #region Cart Logic
     private bool CanAddToCart(ProductDto? product)
-    {
-        if (product == null)
-            return false;
-        return product.StockQuantity > 0;
-    }
+        => product != null && product.StockQuantity > 0;
 
     private void AddToCart(ProductDto product)
     {
-        if (product == null) return;
         if (product.StockQuantity <= 0)
         {
             MessageBox.Show("عفواً، هذا المنتج نفذت كميته.", "نفذت الكمية", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -176,11 +166,8 @@ public class CasherSalesViewModel : BaseViewModel
 
         var existing = CartItems.FirstOrDefault(x => x.ProductId == product.Id);
         if (existing != null)
-        {
             IncreaseQuantity(existing);
-        }
         else
-        {
             CartItems.Add(new SaleItem
             {
                 ProductId = product.Id,
@@ -188,19 +175,17 @@ public class CasherSalesViewModel : BaseViewModel
                 Price = product.SalePrice,
                 Quantity = 1
             });
-        }
+
         UpdateTotal();
     }
 
     private void RemoveFromCart(SaleItem item)
     {
-        if (item == null) return;
         CartItems.Remove(item);
         UpdateTotal();
     }
 
     public void UpdateTotal() => TotalAmount = CartItems.Sum(i => i.Total);
-
 
     private void IncreaseQuantity(SaleItem? item)
     {
@@ -220,14 +205,11 @@ public class CasherSalesViewModel : BaseViewModel
     {
         if (item == null) return;
         if (item.Quantity > 1)
-        {
             item.Quantity--;
-            UpdateTotal();
-        }
-        else if (item.Quantity == 1)
-        {
-            RemoveFromCart(item);
-        }
+        else
+            CartItems.Remove(item);
+
+        UpdateTotal();
     }
 
     private void ClearCart(object? _ = null)
@@ -241,7 +223,7 @@ public class CasherSalesViewModel : BaseViewModel
     }
     #endregion
 
-    // *** (3. تعديل دالة الدفع النقدي) ***
+    #region Payment Logic
     private async Task ExecutePayCashAsync()
     {
         if (!CartItems.Any())
@@ -250,24 +232,16 @@ public class CasherSalesViewModel : BaseViewModel
             return;
         }
 
-        // 1. فتح شاشة الدفع النقدي الجديدة
         var cashDialog = new PayCashWindow(this.TotalAmount);
+        if (cashDialog.ShowDialog() != true) return;
 
-        // 2. لو المستخدم ضغط "إلغاء"، اخرج
-        if (cashDialog.ShowDialog() != true)
-        {
-            return;
-        }
-
-        // 3. قراءة البيانات من الشاشة بعد التأكيد
         var shouldPrint = cashDialog.ShouldPrintReceipt;
         var amountReceived = cashDialog.AmountReceived;
         var change = cashDialog.Change;
 
-        // 4. إنشاء الـ DTO الخاص بالحفظ
         var dto = new CreateOrderDto
         {
-            CreatedByUserId = 1, //TODO: استبدل بالـ ID الخاص بالمستخدم المسجل
+            CreatedByUserId = 1, // TODO
             PaymentMethod = PaymentMethod.Cash,
             Items = CartItems.Select(c => new OrderItemDto
             {
@@ -275,12 +249,9 @@ public class CasherSalesViewModel : BaseViewModel
                 Quantity = c.Quantity,
                 UnitPrice = c.Price
             }).ToList(),
-            // لو الـ DTO بيدعمها، أضف المبلغ المدفوع (هو نفسه الإجمالي في حالة الكاش)
             AmountPaid = this.TotalAmount
         };
 
-        // *** (4. تحويل الأصناف للطباعة) ***
-        // (نعمل نسخة قبل تفريغ السلة)
         var itemsToPrint = CartItems.Select(item => new SaleItemDto
         {
             ProductId = item.ProductId,
@@ -289,42 +260,37 @@ public class CasherSalesViewModel : BaseViewModel
             Price = item.Price
         }).ToList();
 
-        // 5. حفظ الأوردر في الداتا بيز
         var result = await _orderService.CreateCashOrderAsync(dto, default);
 
         if (result.IsSuccess)
         {
-            // 6. لو الحفظ نجح، نفذ الطباعة
             if (shouldPrint)
             {
                 try
                 {
-                    // استخدام البيانات من شاشة الدفع
                     await _printingService.PrintReceiptAsync(itemsToPrint, this.TotalAmount, amountReceived, change);
-                    MessageBox.Show("✅ تم تسجيل البيع ... وجاري طباعة الإيصال", "نجاح", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 catch (Exception ex)
                 {
                     MessageBox.Show($"تم البيع، لكن فشلت الطباعة: {ex.Message}", "خطأ طباعة", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
-            else
-            {
-                MessageBox.Show("✅ تم تسجيل البيع النقدي بنجاح", "نجاح", MessageBoxButton.OK, MessageBoxImage.Information);
-            }
 
-            // 7. تفريغ السلة
+            MessageBox.Show("✅ تم تسجيل البيع النقدي بنجاح", "نجاح", MessageBoxButton.OK, MessageBoxImage.Information);
+
+            // 🔄 تحديث المنتجات بعد البيع
+            await LoadProductsAsync();
+            ProductsUpdated?.Invoke(this, EventArgs.Empty);
+
             CartItems.Clear();
             UpdateTotal();
         }
         else
         {
-            //TODO: معالجة أخطاء الحفظ
             MessageBox.Show(string.Join("\n", result.Errors), "خطأ في حفظ الأوردر", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 
-    // *** (5. تعديل دالة الدفع الآجل للطباعة أيضاً) ***
     private async Task ExecutePayDeferredAsync()
     {
         if (!CartItems.Any())
@@ -333,24 +299,19 @@ public class CasherSalesViewModel : BaseViewModel
             return;
         }
 
-        // 1. فتح شاشة اختيار العميل
         var dialog = new SelectCustomerWindow(_customerService, this.TotalAmount);
-
         if (dialog.ShowDialog() != true) return;
 
         var selectedCustomer = dialog.SelectedCustomer;
-        var amountPaid = dialog.AmountPaid; // المبلغ المدفوع جزئياً
-
+        var amountPaid = dialog.AmountPaid;
         if (selectedCustomer == null) return;
 
-        // (إضافة) سؤال عن الطباعة للدفع الآجل
         var printResult = MessageBox.Show("هل تريد طباعة إيصال لهذه العملية؟", "تأكيد الطباعة", MessageBoxButton.YesNo, MessageBoxImage.Question);
         bool shouldPrint = (printResult == MessageBoxResult.Yes);
 
-        // 2. إنشاء الـ DTO
         var dto = new CreateOrderDto
         {
-            CreatedByUserId = 1, //TODO:
+            CreatedByUserId = 1, // TODO
             PaymentMethod = PaymentMethod.Deferred,
             CustomerId = selectedCustomer.Id,
             Items = CartItems.Select(c => new OrderItemDto
@@ -362,7 +323,6 @@ public class CasherSalesViewModel : BaseViewModel
             AmountPaid = amountPaid
         };
 
-        // (إضافة) تحويل الأصناف للطباعة
         var itemsToPrint = CartItems.Select(item => new SaleItemDto
         {
             ProductId = item.ProductId,
@@ -371,19 +331,16 @@ public class CasherSalesViewModel : BaseViewModel
             Price = item.Price
         }).ToList();
 
-        // 3. حفظ الأوردر
         var result = await _orderService.CreateDeferredOrderAsync(dto, default);
 
         if (result.IsSuccess)
         {
             decimal remaining = this.TotalAmount - amountPaid;
 
-            // 4. تنفيذ الطباعة (لو اختار نعم)
             if (shouldPrint)
             {
                 try
                 {
-                    // هنا نرسل المبلغ المدفوع (الجزئي) والمتبقي
                     await _printingService.PrintReceiptAsync(itemsToPrint, this.TotalAmount, amountPaid, remaining);
                 }
                 catch (Exception ex)
@@ -392,7 +349,9 @@ public class CasherSalesViewModel : BaseViewModel
                 }
             }
 
-            // 5. إظهار رسالة النجاح
+            await LoadProductsAsync();
+            ProductsUpdated?.Invoke(this, EventArgs.Empty);
+
             MessageBox.Show($"✅ تم تسجيل البيع الآجل باسم {selectedCustomer.Name}" +
                             $"\nالإجمالي: {this.TotalAmount:N2} ج.م" +
                             $"\nالمدفوع: {amountPaid:N2} ج.م" +
@@ -404,19 +363,32 @@ public class CasherSalesViewModel : BaseViewModel
         }
         else
         {
-            //TODO: معالجة أخطاء الحفظ
             MessageBox.Show(string.Join("\n", result.Errors), "خطأ في حفظ الأوردر", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
+    #endregion
 }
+
 public class SaleItem : BaseViewModel
 {
     public int ProductId { get; set; }
+
     private string _name = "";
     public string Name { get => _name; set => SetProperty(ref _name, value); }
+
     private int _quantity;
-    public int Quantity { get => _quantity; set { if (SetProperty(ref _quantity, value)) OnPropertyChanged(nameof(Total)); } }
+    public int Quantity
+    {
+        get => _quantity;
+        set { if (SetProperty(ref _quantity, value)) OnPropertyChanged(nameof(Total)); }
+    }
+
     private decimal _price;
-    public decimal Price { get => _price; set { if (SetProperty(ref _price, value)) OnPropertyChanged(nameof(Total)); } }
+    public decimal Price
+    {
+        get => _price;
+        set { if (SetProperty(ref _price, value)) OnPropertyChanged(nameof(Total)); }
+    }
+
     public decimal Total => Quantity * Price;
 }
